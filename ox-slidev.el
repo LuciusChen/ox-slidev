@@ -669,9 +669,11 @@ Returns empty string if FM is empty."
              ;; First slide: emit merged frontmatter
            (concat fm-block "\n")
            ;; Subsequent slides: emit separator + optional fm
-           (concat "---\n"
-                   (if (null slide-fm) "\n"
-                     (concat "\n" fm-block "\n"))))
+           (if (null slide-fm)
+               "---\n\n"
+             ;; For later slides with frontmatter, the opening --- is both the
+             ;; slide separator and the frontmatter start.
+             (concat (ox-slidev--trim-trailing-newlines fm-block) "\n\n")))
          heading
          body)))
 

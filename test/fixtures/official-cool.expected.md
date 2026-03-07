@@ -28,8 +28,6 @@ Slidev Docs
 </Link>
 
 ---
-
----
 transition: fade-out
 ---
 
@@ -49,8 +47,6 @@ transition: fade-out
 After click hint
 
 </div>
-
----
 
 ---
 layout: two-cols
@@ -112,8 +108,6 @@ Dark mode helper
 
 
 <PoweredBySlidev />
-
----
 
 ---
 layout: image-right

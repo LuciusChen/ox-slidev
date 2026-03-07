@@ -28,8 +28,6 @@ Pause after the second bullet.
 -->
 
 ---
-
----
 layout: two-cols
 layoutClass: gap-10
 ---
@@ -48,8 +46,6 @@ layoutClass: gap-10
 Prefer explicit blocks over magic.
 
 </div>
-
----
 
 ---
 layout: image-right

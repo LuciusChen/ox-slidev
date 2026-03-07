@@ -11,8 +11,6 @@ class: px-14
 Q2 Product Update
 
 ---
-
----
 layout: two-cols
 layoutClass: gap-12
 ---
@@ -49,8 +47,6 @@ Keep this slide short.
 Ready for review
 
 </div>
-
----
 
 ---
 layout: image-right
