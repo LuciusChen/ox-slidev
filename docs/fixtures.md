@@ -36,7 +36,7 @@ to prove a different authoring path.
 ## Showcase
 
 - Source: `test/fixtures/showcase.org`
-- Purpose: provide a more normal presentation-shaped demo with text flow,
-  tables, LaTeX, image layout, notes, and code.
+- Purpose: provide a more normal presentation-shaped demo with realistic talk
+  flow while still covering a broad set of Slidev features.
 - Use when: checking the visible demo output or validating everyday talk content.
 - Companion doc: [walkthrough.md](./walkthrough.md)

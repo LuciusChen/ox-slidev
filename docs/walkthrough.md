@@ -128,7 +128,8 @@ attributes.
 
 ## Step 5: Keep normal content as normal Org
 
-The `showcase` deck deliberately uses plain Org for most slide body content:
+The `showcase` deck still uses plain Org for most slide body content, even
+though it now demonstrates a wider Slidev surface:
 
 - paragraphs
 - lists
@@ -211,8 +212,7 @@ but for normal use you only need export and preview.
 
 ## Step 8: Know when to stop adding syntax
 
-The `showcase` deck is intentionally moderate.
-It proves a useful rule:
+The `showcase` deck is intentionally broad, but still follows one useful rule:
 
 - plain Org first
 - explicit Slidev mapping second
@@ -232,15 +232,21 @@ notice this sequence:
 
 1. `Opening`: cover layout
 2. `Agenda`: clicks + notes
-3. `Problem`: two-cols + right slot + fragment
-4. `Signals`: plain Org table
-5. `Result`: image-right + LaTeX
-6. `Rollout`: ordered clicks + notes
-7. `Example`: code fence options
-8. `Takeaway`: plain list
-9. `Close`: quote layout
+3. `Deck Map`: center layout + TOC component
+4. `Problem`: two-cols + right slot + fragment
+5. `Signals`: plain Org table + notes
+6. `Workflow Map`: center layout + arrows + generic component + vdrag
+7. `Early Feedback`: transform + tweet
+8. `Demo Clip`: youtube + link
+9. `Result`: image-right + LaTeX + footnote
+10. `Theme Check`: light/dark component pair
+11. `Rollout`: ordered clicks + notes
+12. `Example`: code fence options
+13. `Takeaway`: plain list
+14. `Close`: quote layout + powered-by-slidev
 
-That is already enough structure for many normal technical talks.
+That is enough structure for a realistic technical talk while still showing the
+main mapped Slidev features.
 
 ## If You Need More
 

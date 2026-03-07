@@ -99,8 +99,8 @@ Starter deck:
 
 Demo deck:
 - visible demo build now uses [showcase.org](/home/lucius/ox-slidev/test/fixtures/showcase.org)
-- richer regression/demo coverage with normal presentation content, including
-  tables, notes, code, and LaTeX
+- richer regression/demo coverage with realistic presentation content and a
+  broader set of mapped Slidev features
 
 ## Development
 
