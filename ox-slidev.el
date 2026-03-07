@@ -511,7 +511,12 @@ Tokens like \"foo=bar\" become `foo=\"bar\"`. Bare tokens become boolean attrs."
         (ox-slidev--inline-component name attrs desc))
     (or desc path)))
 
-(org-link-set-parameters "slidev" :export #'ox-slidev--export-slidev-link)
+(defmacro ox-slidev--with-export-context (&rest body)
+  "Run BODY with temporary Slidev export-only Org link registration."
+  (declare (indent 0) (debug t))
+  `(let ((org-link-parameters (copy-tree org-link-parameters)))
+     (org-link-set-parameters "slidev" :export #'ox-slidev--export-slidev-link)
+     ,@body))
 
 (defun ox-slidev--indent-lines (text prefix)
   "Prefix every line in TEXT with PREFIX."
@@ -841,9 +846,10 @@ If the link has #+ATTR_SLIDEV: :width, emit <img> instead of ![](...)."
 Optional arguments ASYNC, SUBTREEP, and VISIBLE-ONLY are as in
 `org-export-to-buffer'."
   (interactive)
-  (org-export-to-buffer 'slidev "*Org Slidev Export*"
-    async subtreep visible-only nil nil
-    (lambda () (text-mode))))
+  (ox-slidev--with-export-context
+    (org-export-to-buffer 'slidev "*Org Slidev Export*"
+      async subtreep visible-only nil nil
+      (lambda () (text-mode)))))
 
 ;;;###autoload
 (defun ox-slidev-export-to-file (&optional async subtreep visible-only)
@@ -852,7 +858,8 @@ The output file will have the same base name with .md extension.
 Optional arguments ASYNC, SUBTREEP, VISIBLE-ONLY are as in `org-export-to-file'."
   (interactive)
   (let ((outfile (concat (file-name-sans-extension (buffer-file-name)) ".md")))
-    (org-export-to-file 'slidev outfile async subtreep visible-only)))
+    (ox-slidev--with-export-context
+      (org-export-to-file 'slidev outfile async subtreep visible-only))))
 
 
 ;;; ============================================================

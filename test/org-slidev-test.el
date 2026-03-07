@@ -45,6 +45,33 @@
       (when (file-exists-p temp-md)
         (delete-file temp-md)))))
 
+(ert-deftest org-slidev-export-to-file-runs-before-and-after-hooks ()
+  (let* ((temp-org (make-temp-file "org-slidev-" nil ".org"))
+         (temp-md (concat (file-name-sans-extension temp-org) ".md"))
+         (buffer nil)
+         (before-ran nil)
+         (after-path nil)
+         (org-slidev-before-export-hook
+          (list (lambda () (setq before-ran t))))
+         (org-slidev-after-export-hook
+          (list (lambda (path) (setq after-path path)))))
+    (unwind-protect
+        (progn
+          (with-temp-file temp-org
+            (insert "#+TITLE: Demo\n\n* Intro\nHello\n"))
+          (setq buffer (find-file-noselect temp-org))
+          (with-current-buffer buffer
+            (org-mode)
+            (let ((outfile (org-slidev-export-to-file)))
+              (should before-ran)
+              (should (equal outfile after-path)))))
+      (when (buffer-live-p buffer)
+        (kill-buffer buffer))
+      (when (file-exists-p temp-org)
+        (delete-file temp-org))
+      (when (file-exists-p temp-md)
+        (delete-file temp-md)))))
+
 (ert-deftest org-slidev-project-root-detection-uses-markers ()
   (let* ((root (make-temp-file "org-slidev-root-" t))
          (nested (expand-file-name "a/b" root))
@@ -57,6 +84,18 @@
           (let ((org-slidev-project-root-function nil))
             (should (equal (file-name-as-directory root)
                            (org-slidev--project-root md-file)))))
+      (delete-directory root t))))
+
+(ert-deftest org-slidev-project-root-detection-uses-override-function ()
+  (let* ((root (make-temp-file "org-slidev-root-" t))
+         (md-file (expand-file-name "slides.md" root))
+         (org-slidev-project-root-function
+          (lambda (_md-file) "/tmp/override-root/")))
+    (unwind-protect
+        (progn
+          (with-temp-file md-file (insert "# demo\n"))
+          (should (equal "/tmp/override-root/"
+                         (org-slidev--project-root md-file))))
       (delete-directory root t))))
 
 (ert-deftest org-slidev-build-dev-args-uses-path-relative-to-project-root ()
@@ -107,6 +146,42 @@
           (should (null org-slidev--preview-file)))
       (when (buffer-live-p buf)
         (kill-buffer buf)))))
+
+(ert-deftest org-slidev-show-server-buffer-displays-existing-buffer ()
+  (let ((buf (get-buffer-create "*org-slidev*"))
+        (shown nil))
+    (unwind-protect
+        (cl-letf (((symbol-function 'pop-to-buffer)
+                   (lambda (buffer &rest _) (setq shown buffer))))
+          (org-slidev-show-server-buffer)
+          (should (eq buf shown)))
+      (when (buffer-live-p buf)
+        (kill-buffer buf)))))
+
+(ert-deftest org-slidev-server-status-reports-running-process ()
+  (let* ((buf (generate-new-buffer " *org-slidev-status-test*"))
+         (proc (start-process "org-slidev-status-test" buf "cat"))
+         (org-slidev--process proc)
+         (message-text nil))
+    (unwind-protect
+        (cl-letf (((symbol-function 'message)
+                   (lambda (fmt &rest args)
+                     (setq message-text (apply #'format fmt args)))))
+          (org-slidev-server-status)
+          (should (string-match-p "server running at http://localhost:3030"
+                                  message-text)))
+      (when (process-live-p proc)
+        (delete-process proc))
+      (when (buffer-live-p buf)
+        (kill-buffer buf)))))
+
+(ert-deftest org-slidev-auto-export-mode-manages-after-save-hook-buffer-locally ()
+  (with-temp-buffer
+    (org-mode)
+    (org-slidev-auto-export-mode 1)
+    (should (memq #'org-slidev--auto-export-on-save after-save-hook))
+    (org-slidev-auto-export-mode 0)
+    (should-not (memq #'org-slidev--auto-export-on-save after-save-hook))))
 
 (ert-deftest org-slidev-preview-reuses-running-server-for-same-file ()
   (let ((temp-org (make-temp-file "org-slidev-preview-" nil ".org"))
