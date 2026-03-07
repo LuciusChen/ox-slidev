@@ -31,4 +31,11 @@ to prove a different authoring path.
 
 - Source: `test/fixtures/official-cool.org`
 - Purpose: cover richer Slidev-specific syntax and the fixed demo build.
-- Use when: changing advanced components, layout wrappers, or demo output.
+- Use when: changing advanced components or layout wrappers.
+
+## Showcase
+
+- Source: `test/fixtures/showcase.org`
+- Purpose: provide a more normal presentation-shaped demo with text flow,
+  LaTeX, image layout, notes, and code.
+- Use when: checking the visible demo output or validating everyday talk content.

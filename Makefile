@@ -1,7 +1,7 @@
 EMACS ?= emacs
 NPM ?= npm
 PYTHON ?= python3
-DEMO_SOURCE ?= test/fixtures/official-cool.expected.md
+DEMO_SOURCE ?= test/fixtures/showcase.expected.md
 DEMO_DIR ?= test/smoke-dist
 DEMO_PORT ?= 4173
 

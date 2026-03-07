@@ -92,6 +92,10 @@ Starter deck:
 - built-in template: [starter.org](/home/lucius/ox-slidev/templates/starter.org)
 - insert command: `M-x org-slidev-insert-starter`
 
+Demo deck:
+- visible demo build now uses [showcase.org](/home/lucius/ox-slidev/test/fixtures/showcase.org)
+- richer regression/demo coverage with normal presentation content, including LaTeX
+
 ## Development
 
 Run tests with:

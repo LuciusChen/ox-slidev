@@ -369,6 +369,15 @@
       (should (equal (org-export-as 'slidev nil nil t)
                      (ox-slidev-test--read-file expected-file))))))
 
+(ert-deftest ox-slidev-export-fixture-showcase-golden ()
+  (let* ((root default-directory)
+         (org-file (expand-file-name "test/fixtures/showcase.org" root))
+         (expected-file (expand-file-name "test/fixtures/showcase.expected.md" root)))
+    (with-current-buffer (find-file-noselect org-file)
+      (org-mode)
+      (should (equal (org-export-as 'slidev nil nil t)
+                     (ox-slidev-test--read-file expected-file))))))
+
 (ert-deftest ox-slidev-export-fixture-official-cool-includes-inline-badge ()
   (let ((output (ox-slidev-test--read-file
                  (expand-file-name "test/fixtures/official-cool.expected.md"
