@@ -37,5 +37,5 @@ to prove a different authoring path.
 
 - Source: `test/fixtures/showcase.org`
 - Purpose: provide a more normal presentation-shaped demo with text flow,
-  LaTeX, image layout, notes, and code.
+  tables, LaTeX, image layout, notes, and code.
 - Use when: checking the visible demo output or validating everyday talk content.

@@ -20,7 +20,9 @@ From Org source to a talk-shaped Slidev deck
 <v-clicks at="2">
 
 -   Problem framing
+-   Working assumptions
 -   Key result
+-   Rollout steps
 -   Delivery plan
 
 </v-clicks>
@@ -55,6 +57,22 @@ Current friction drops when one source can serve writing, review, and demo.
 </div>
 
 ---
+
+# Signals
+
+The workflow is useful when the review surface gets smaller without losing
+Slidev-native features.
+
+| Signal | Before | After |
+| :--- | :--- | :--- |
+| Review unit | Org + hand-edited md | One Org source |
+| Preview loop | Export and inspect | Export, then Slidev HMR |
+| Final output | Inconsistent markdown | Stable golden + demo |
+
+See the current reference demo at [sli.dev](https://sli.dev) for the target
+feel, not the source format.
+
+---
 layout: image-right
 image: 'https://cover.sli.dev'
 ---
@@ -71,12 +89,37 @@ $$
 
 ---
 
+# Rollout
+
+<v-clicks at="2">
+
+1.  Keep most slides as plain Org.
+2.  Use explicit Slidev blocks only for repeated visual structure.
+3.  Lock output with fixture tests before polishing themes.
+
+</v-clicks>
+
+
+<!--
+The point is predictable authoring, not maximum abstraction.
+-->
+
+---
+
 # Example
 
 ```emacs-lisp {1|3}
 (setq org-slidev-open-browser t)
 (message "export -> preview -> review")
 ```
+
+---
+
+# Takeaway
+
+-   Org stays the writing format.
+-   Slidev stays the runtime format.
+-   The exporter keeps the mapping explicit and reviewable.
 
 ---
 layout: quote
