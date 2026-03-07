@@ -3,6 +3,9 @@
 #+SLIDEV_THEME: seriph
 
 * Opening
+:PROPERTIES:
+:SLIDEV_LAYOUT: cover
+:END:
 Welcome to Slidev from Org.
 
 * Agenda
@@ -13,7 +16,10 @@ Welcome to Slidev from Org.
 #+end_clicks
 
 * Details
-#+begin_two_cols layoutClass="gap-12"
+:PROPERTIES:
+:SLIDEV_LAYOUT: two-cols
+:SLIDEV_FM_layoutClass: gap-12
+:END:
 - Keep the source readable
 - Prefer plain Org first
 
@@ -22,7 +28,6 @@ Welcome to Slidev from Org.
 Pause after the second point.
 #+end_notes
 #+end_right
-#+end_two_cols
 
 * Example
 #+ATTR_SLIDEV: :code {1|3}

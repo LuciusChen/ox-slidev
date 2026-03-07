@@ -9,7 +9,7 @@
   (let ((template (org-slidev--starter-template)))
     (should (string-match-p "#\\+TITLE: Demo" template))
     (should (string-match-p "#\\+begin_clicks" template))
-    (should (string-match-p "#\\+begin_two_cols" template))))
+    (should (string-match-p ":SLIDEV_LAYOUT: two-cols" template))))
 
 (ert-deftest org-slidev-insert-starter-inserts-template-into-org-buffer ()
   (with-temp-buffer
@@ -68,7 +68,7 @@
           (make-directory nested t)
           (with-temp-file md-file (insert "# demo\n"))
           (let ((org-slidev-dev-port 4321))
-            (should (equal '("dev" "deck/slides.md" "--port" "4321")
+            (should (equal '("deck/slides.md" "--port" "4321")
                            (org-slidev--build-dev-args
                             md-file
                             (file-name-as-directory root))))))

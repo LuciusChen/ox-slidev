@@ -15,7 +15,7 @@
 ;;
 ;;   1. Write your presentation in an Org file.
 ;;   2. M-x org-slidev-preview
-;;      → exports to slides.md, starts `slidev dev`, opens browser.
+;;      → exports to slides.md, starts `slidev`, opens browser.
 ;;
 ;;   3. Edit Org file, M-x org-slidev-export-to-file to re-export.
 ;;      (or enable org-slidev-auto-export-mode for automatic re-export on save)
@@ -269,14 +269,13 @@ Kills any previously running server first."
     org-slidev--process))
 
 (defun org-slidev--build-dev-args (md-file &optional project-root)
-  "Build argument list for `slidev dev' given MD-FILE and PROJECT-ROOT."
+  "Build argument list for Slidev preview given MD-FILE and PROJECT-ROOT."
   (let* ((root (or project-root (org-slidev--project-root md-file)))
          (target (if root
                      (file-relative-name md-file root)
                    (file-name-nondirectory md-file))))
-  (list "dev"
-        target
-        "--port" (number-to-string org-slidev-dev-port))))
+    (list target
+          "--port" (number-to-string org-slidev-dev-port))))
 
 (defun org-slidev--process-sentinel (process event)
   "Handle Slidev server PROCESS state changes (EVENT)."
@@ -329,7 +328,7 @@ Also watches for the ready signal to open the browser."
 
 Workflow:
   1. Export current buffer → slides.md (or configured output path)
-  2. Start `slidev dev' on the exported file
+  2. Start Slidev on the exported file
   3. Open browser at http://localhost:PORT (if `org-slidev-open-browser' is t)
 
 If a server is already running for this file, re-exports and reloads

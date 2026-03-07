@@ -3,9 +3,11 @@
 #+SLIDEV_THEME: seriph
 
 * Opening
-#+begin_cover class="px-14"
+:PROPERTIES:
+:SLIDEV_LAYOUT: cover
+:SLIDEV_CLASS: px-14
+:END:
 Weekly Review
-#+end_cover
 
 * Progress
 #+begin_clicks at=2
@@ -19,7 +21,10 @@ Pause after the second bullet.
 #+end_notes
 
 * Risks
-#+begin_two_cols layoutClass="gap-10"
+:PROPERTIES:
+:SLIDEV_LAYOUT: two-cols
+:SLIDEV_FM_layoutClass: gap-10
+:END:
 - Keep syntax surface small
 - Avoid hidden behavior
 
@@ -28,13 +33,14 @@ Pause after the second bullet.
 Prefer explicit blocks over magic.
 #+end_fragment
 #+end_right
-#+end_two_cols
 
 * Close
-#+begin_image_right image="https://cover.sli.dev"
+:PROPERTIES:
+:SLIDEV_LAYOUT: image-right
+:SLIDEV_FM_image: https://cover.sli.dev
+:END:
 [[slidev:Badge::type=warning][Watch]]
 
 #+begin_src text
 Next: use this on a real deck.
 #+end_src
-#+end_image_right

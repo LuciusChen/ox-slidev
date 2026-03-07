@@ -13,7 +13,7 @@ This is an MVP. The core workflow is in place:
 
 1. Write slides in Org.
 2. Export to Slidev Markdown.
-3. Start `slidev dev` for live preview.
+3. Start `slidev` for live preview.
 
 ## Requirements
 
@@ -84,7 +84,8 @@ Talk track for this slide.
 ```
 
 Use advanced syntax sparingly:
-- `two_cols`, `image_right`, `fragment`, `clicks` for repeated Slidev patterns
+- headline property drawers for layout/frontmatter, plus `fragment` and `clicks`
+  for repeated Slidev patterns
 - `slidev:` inline links for occasional components
 - `component` or raw `export slidev` only when there is no simpler readable form
 

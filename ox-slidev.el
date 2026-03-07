@@ -155,10 +155,7 @@ Returns an alist of (key . value) pairs."
 (defun ox-slidev--headline-fm (headline)
   "Extract slide-level frontmatter from HEADLINE property drawer.
 Returns an alist."
-  (let ((fm '())
-        (layout-fm nil)
-        (section (org-element-map (org-element-contents headline) 'section
-                   #'identity nil t)))
+  (let ((fm '()))
     (dolist (pair '(("SLIDEV_LAYOUT" . "layout")
                     ("SLIDEV_CLASS" . "class")
                     ("SLIDEV_BACKGROUND" . "background")
@@ -167,21 +164,20 @@ Returns an alist."
       (when-let* ((val (org-element-property (intern (concat ":" (car pair)))
                                              headline)))
         (push (cons (cdr pair) (string-trim val)) fm)))
-    (when section
-      (dolist (child (org-element-contents section))
-        (when (eq (org-element-type child) 'property-drawer)
-          (dolist (prop (org-element-contents child))
-            (let ((key (org-element-property :key prop))
-                  (val (org-element-property :value prop)))
-              (when (string-prefix-p "SLIDEV_FM_" key)
-                (let ((fm-key (substring key (length "SLIDEV_FM_"))))
-                  (push (cons fm-key (string-trim val)) fm))))))))
-    (setq fm (nreverse fm))
-    (setq layout-fm (ox-slidev--headline-layout-block-fm headline))
-    (dolist (pair layout-fm)
-      (unless (assoc (car pair) fm)
-        (setq fm (append fm (list pair)))))
-    fm))
+    (org-with-point-at (org-element-property :begin headline)
+      (save-excursion
+        (forward-line 1)
+        (when (looking-at-p "[ \t]*:PROPERTIES:[ \t]*$")
+          (forward-line 1)
+          (while (and (not (eobp))
+                      (not (looking-at-p "[ \t]*:END:[ \t]*$")))
+            (when (looking-at "[ \t]*:\\(SLIDEV_FM_[^:]+\\):[ \t]*\\(.*\\)$")
+              (let ((fm-key (substring (match-string 1) (length "SLIDEV_FM_")))
+                    (val (string-trim (match-string 2))))
+                (unless (string-empty-p val)
+                  (push (cons fm-key val) fm))))
+            (forward-line 1)))))
+    (nreverse fm)))
 
 (defun ox-slidev--fm-to-string (fm)
   "Convert frontmatter alist FM to YAML string (without delimiters)."
@@ -325,64 +321,15 @@ Tokens like \"foo=bar\" become `foo=\"bar\"`. Bare tokens become boolean attrs."
     ("dark" (ox-slidev--component-block "template" "#dark" body))
     (_ body)))
 
-(defun ox-slidev--layout-block-fm (type params)
-  "Return slide frontmatter inferred from layout block TYPE and PARAMS."
-  (let ((layout (pcase type
-                  ((or "two_cols" "two-cols") "two-cols")
-                  ((or "two_cols_header" "two-cols-header") "two-cols-header")
-                  ("cover" "cover")
-                  ((or "slide_center" "slide-center") "center")
-                  ((or "slide_quote" "slide-quote") "quote")
-                  ("fact" "fact")
-                  ("statement" "statement")
-                  ((or "image_left" "image-left") "image-left")
-                  ((or "image_right" "image-right") "image-right")
-                  (_ nil)))
-        (fm nil))
-    (when layout
-      (setq fm (list (cons "layout" layout)))
-      (dolist (token (if (and params (not (string-empty-p (string-trim params))))
-                         (split-string-shell-command params)
-                       nil))
-        (cond
-         ((string-match "\\`layoutClass=\\(.*\\)\\'" token)
-          (setq fm
-                (append fm
-                        (list (cons "layoutClass"
-                                    (ox-slidev--normalize-attr-value
-                                     (match-string 1 token)))))))
-         ((and (member layout '("two-cols" "two-cols-header"))
-               (string-match "\\`class=\\(.*\\)\\'" token))
-          (setq fm
-                (append fm
-                        (list (cons "layoutClass"
-                                    (ox-slidev--normalize-attr-value
-                                     (match-string 1 token)))))))
-         ((string-match "\\`\\([^=[:space:]]+\\)=\\(.*\\)\\'" token)
-          (setq fm
-                (append fm
-                        (list (cons (match-string 1 token)
-                                    (ox-slidev--normalize-attr-value
-                                     (match-string 2 token)))))))))
-      fm)))
-
-(defun ox-slidev--headline-layout-block-fm (headline)
-  "Extract slide frontmatter from special layout blocks inside HEADLINE."
-  (let ((fm nil)
-        (section (org-element-map (org-element-contents headline) 'section
-                   #'identity nil t)))
-    (when section
-      (catch 'done
-        (org-element-map section 'special-block
-          (lambda (block)
-            (let ((block-fm
-                   (ox-slidev--layout-block-fm
-                    (downcase (org-element-property :type block))
-                    (org-element-property :parameters block))))
-              (when block-fm
-                (setq fm block-fm)
-                (throw 'done fm)))))))
-    fm))
+(defconst ox-slidev--deprecated-layout-wrapper-types
+  '("two_cols" "two-cols"
+    "two_cols_header" "two-cols-header"
+    "cover" "slide_center" "slide-center"
+    "slide_quote" "slide-quote"
+    "fact" "statement"
+    "image_left" "image-left"
+    "image_right" "image-right")
+  "Special block names that used to infer slide layouts and are now rejected.")
 
 (defun ox-slidev--inline-component (name attrs &optional body)
   "Render inline Slidev/Vue component NAME with ATTRS and optional BODY."
@@ -732,15 +679,10 @@ Returns empty string if FM is empty."
      ((member type '("left" "right" "top" "bottom"))
       (concat "\n::" type "::\n\n" body "\n"))
 
-     ;; Layout declaration wrappers: keep body, infer layout via headline scan.
-     ((member type '("two_cols" "two-cols"
-                     "two_cols_header" "two-cols-header"
-                     "cover" "slide_center" "slide-center"
-                     "slide_quote" "slide-quote"
-                     "fact" "statement"
-                     "image_left" "image-left"
-                     "image_right" "image-right"))
-      body)
+     ((member type ox-slidev--deprecated-layout-wrapper-types)
+      (user-error
+       "Layout wrapper block `%s' is no longer supported; use headline properties like :SLIDEV_LAYOUT: and slot blocks instead"
+       type))
 
      ;; Fragment block → v-click wrapper
      ((string= type "fragment")

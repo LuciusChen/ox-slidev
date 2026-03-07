@@ -31,7 +31,7 @@ to prove a different authoring path.
 
 - Source: `test/fixtures/official-cool.org`
 - Purpose: cover richer Slidev-specific syntax and the fixed demo build.
-- Use when: changing advanced components or layout wrappers.
+- Use when: changing advanced components or slide layout/frontmatter handling.
 
 ## Showcase
 

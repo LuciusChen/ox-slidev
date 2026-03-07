@@ -116,7 +116,7 @@ image: 'https://cover.sli.dev'
 
 # Gallery
 
-Image layout wrapper with centered caption
+Image layout with centered caption
 
 ---
 

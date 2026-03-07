@@ -11,8 +11,9 @@ needs it.
 3. Plain Org text, lists, links, and source blocks.
 4. `#+begin_notes` for speaker notes.
 5. `#+begin_fragment` and `#+begin_clicks` for reveal flow.
-6. `#+begin_two_cols` with `#+begin_right` for common two-column slides.
-7. `#+begin_image_right` or `#+begin_image_left` for image-led slides.
+6. Headline property drawers for slide-level frontmatter such as
+   `:SLIDEV_LAYOUT:` and `:SLIDEV_FM_layoutClass:`.
+7. `#+begin_left/right/top/bottom` when a Slidev layout exposes slots.
 8. `[[slidev:...]]` for occasional inline Slidev/Vue components.
 
 ## Advanced Path
@@ -31,6 +32,8 @@ needs it.
 ## Avoid By Default
 
 - Adding new wrapper syntax for one-off slides.
+- Depending on deprecated layout wrapper blocks such as `two_cols` or
+  `image_right`.
 - Depending on implicit behavior that is hard to read from the Org source.
 - Replacing plain Org with custom syntax when plain Org already exports well.
 

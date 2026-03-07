@@ -4,13 +4,13 @@
 #+SLIDEV_FM_DRAWINGS: false
 
 * Opening
-#+begin_cover class="px-14"
-#+begin_slide_center
+:PROPERTIES:
+:SLIDEV_LAYOUT: cover
+:SLIDEV_CLASS: px-14
+:END:
 Research Update
 
 From Org source to a talk-shaped Slidev deck
-#+end_slide_center
-#+end_cover
 
 * Agenda
 #+begin_clicks at=2
@@ -26,7 +26,10 @@ Set the context before showing details.
 #+end_notes
 
 * Problem
-#+begin_two_cols layoutClass="gap-12"
+:PROPERTIES:
+:SLIDEV_LAYOUT: two-cols
+:SLIDEV_FM_layoutClass: gap-12
+:END:
 We want a deck authoring workflow that stays readable in Org and still exports
 to modern Slidev features.
 
@@ -39,7 +42,6 @@ to modern Slidev features.
 Current friction drops when one source can serve writing, review, and demo.
 #+end_fragment
 #+end_right
-#+end_two_cols
 
 * Signals
 The workflow is useful when the review surface gets smaller without losing
@@ -55,7 +57,10 @@ See the current reference demo at [[https://sli.dev][sli.dev]] for the target
 feel, not the source format.
 
 * Result
-#+begin_image_right image="https://cover.sli.dev"
+:PROPERTIES:
+:SLIDEV_LAYOUT: image-right
+:SLIDEV_FM_image: https://cover.sli.dev
+:END:
 The exported deck preserves math and ordinary content.
 
 Inline result: $f(x) = x^2 + 1$
@@ -63,7 +68,6 @@ Inline result: $f(x) = x^2 + 1$
 \[
 \int_0^1 x^2 dx = \frac{1}{3}
 \]
-#+end_image_right
 
 * Rollout
 #+begin_clicks at=2
@@ -89,6 +93,7 @@ The point is predictable authoring, not maximum abstraction.
 - The exporter keeps the mapping explicit and reviewable.
 
 * Close
-#+begin_slide_quote
+:PROPERTIES:
+:SLIDEV_LAYOUT: quote
+:END:
 Readable Org first, Slidev power when it is justified.
-#+end_slide_quote

@@ -147,9 +147,9 @@
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p "<v-clicks class=\"text-sm mx-auto\" at=\"2\">" output)))))
 
-(ert-deftest ox-slidev-export-infers-two-cols-layout-from-layout-block ()
+(ert-deftest ox-slidev-export-renders-two-cols-layout-from-properties ()
   (ox-slidev-test-with-temp-org
-      "* Intro\n#+begin_two_cols layoutClass=\"gap-16\"\nLeft body\n#+begin_right\nRight body\n#+end_right\n#+end_two_cols\n"
+      "* Intro\n:PROPERTIES:\n:SLIDEV_LAYOUT: two-cols\n:SLIDEV_FM_layoutClass: gap-16\n:END:\nLeft body\n#+begin_right\nRight body\n#+end_right\n"
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p "layout: two-cols" output))
       (should (string-match-p "layoutClass: gap-16" output))
@@ -157,37 +157,43 @@
       (should (string-match-p "::right::" output))
       (should (string-match-p "Right body" output)))))
 
-(ert-deftest ox-slidev-export-infers-two-cols-header-layout-from-layout-block ()
+(ert-deftest ox-slidev-export-renders-two-cols-header-layout-from-properties ()
   (ox-slidev-test-with-temp-org
-      "* Intro\n#+begin_two_cols_header\nHeader body\n#+begin_left\nLeft body\n#+end_left\n#+begin_right\nRight body\n#+end_right\n#+end_two_cols_header\n"
+      "* Intro\n:PROPERTIES:\n:SLIDEV_LAYOUT: two-cols-header\n:END:\nHeader body\n#+begin_left\nLeft body\n#+end_left\n#+begin_right\nRight body\n#+end_right\n"
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p "layout: two-cols-header" output))
       (should (string-match-p "Header body" output))
       (should (string-match-p "::left::" output))
       (should (string-match-p "::right::" output)))))
 
-(ert-deftest ox-slidev-export-infers-cover-layout-from-layout-block ()
+(ert-deftest ox-slidev-export-renders-cover-layout-from-properties ()
   (ox-slidev-test-with-temp-org
-      "* Intro\n#+begin_cover class=\"hero\"\nWelcome\n#+end_cover\n"
+      "* Intro\n:PROPERTIES:\n:SLIDEV_LAYOUT: cover\n:SLIDEV_CLASS: hero\n:END:\nWelcome\n"
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p "layout: cover" output))
       (should (string-match-p "class: hero" output))
       (should (string-match-p "Welcome" output)))))
 
-(ert-deftest ox-slidev-export-infers-center-layout-from-layout-block ()
+(ert-deftest ox-slidev-export-renders-center-layout-from-properties ()
   (ox-slidev-test-with-temp-org
-      "* Intro\n#+begin_slide_center\nCentered body\n#+end_slide_center\n"
+      "* Intro\n:PROPERTIES:\n:SLIDEV_LAYOUT: center\n:END:\nCentered body\n"
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p "layout: center" output))
       (should (string-match-p "Centered body" output)))))
 
-(ert-deftest ox-slidev-export-infers-image-right-layout-from-layout-block ()
+(ert-deftest ox-slidev-export-renders-image-right-layout-from-properties ()
   (ox-slidev-test-with-temp-org
-      "* Intro\n#+begin_image_right image=\"https://example.com/cover.png\"\nText body\n#+end_image_right\n"
+      "* Intro\n:PROPERTIES:\n:SLIDEV_LAYOUT: image-right\n:SLIDEV_FM_image: https://example.com/cover.png\n:END:\nText body\n"
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p "layout: image-right" output))
       (should (string-match-p "image: 'https://example.com/cover.png'" output))
       (should (string-match-p "Text body" output)))))
+
+(ert-deftest ox-slidev-export-rejects-layout-wrapper-blocks ()
+  (ox-slidev-test-with-temp-org
+      "* Intro\n#+begin_two_cols layoutClass=\"gap-16\"\nLeft body\n#+end_two_cols\n"
+    (should-error (org-export-as 'slidev nil nil t)
+                  :type 'user-error)))
 
 (ert-deftest ox-slidev-export-renders-toc-component-alias ()
   (ox-slidev-test-with-temp-org
@@ -286,6 +292,56 @@
     (let ((output (org-export-as 'slidev nil nil t)))
       (should (string-match-p (regexp-quote "Inline $x^2$ and $y$.") output))
       (should (string-match-p (regexp-quote "$$ z = 1 $$") output)))))
+
+(ert-deftest ox-slidev-export-preserves-block-math-inside-right-slot ()
+  (ox-slidev-test-with-temp-org
+      "* Math\n:PROPERTIES:\n:SLIDEV_LAYOUT: two-cols\n:END:\nLeft copy\n#+begin_right\n\\[\n\\int_0^1 x^2 dx = \\frac{1}{3}\n\\]\n#+end_right\n"
+    (let ((output (org-export-as 'slidev nil nil t)))
+      (should (string-match-p "layout: two-cols" output))
+      (should (string-match-p "::right::" output))
+      (should (string-match-p
+               (regexp-quote "$$\n\\int_0^1 x^2 dx = \\frac{1}{3}\n$$")
+               output)))))
+
+(ert-deftest ox-slidev-export-preserves-block-math-inside-fragment ()
+  (ox-slidev-test-with-temp-org
+      "* Math\n#+begin_fragment after at=2\n\\[\nE = mc^2\n\\]\n#+end_fragment\n"
+    (let ((output (org-export-as 'slidev nil nil t)))
+      (should (string-match-p "<div v-after=\"2\">" output))
+      (should (string-match-p
+               (regexp-quote "$$\nE = mc^2\n$$")
+               output))
+      (should (string-match-p "</div>" output)))))
+
+(ert-deftest ox-slidev-export-preserves-inline-math-inside-clicks ()
+  (ox-slidev-test-with-temp-org
+      "* Math\n#+begin_clicks at=2\n- First $x^2$\n- Second $y^2$\n#+end_clicks\n"
+    (let ((output (org-export-as 'slidev nil nil t)))
+      (should (string-match-p "<v-clicks at=\"2\">" output))
+      (should (string-match-p (regexp-quote "-   First $x^2$") output))
+      (should (string-match-p (regexp-quote "-   Second $y^2$") output))
+      (should (string-match-p "</v-clicks>" output)))))
+
+(ert-deftest ox-slidev-export-preserves-src-block-inside-fragment ()
+  (ox-slidev-test-with-temp-org
+      "* Code\n#+begin_fragment at=2\n#+begin_src emacs-lisp\n(message \"hi\")\n#+end_src\n#+end_fragment\n"
+    (let ((output (org-export-as 'slidev nil nil t)))
+      (should (string-match-p "<div v-click=\"2\">" output))
+      (should (string-match-p (regexp-quote "```emacs-lisp") output))
+      (should (string-match-p (regexp-quote "(message \"hi\")") output))
+      (should (string-match-p (regexp-quote "```") output))
+      (should (string-match-p "</div>" output)))))
+
+(ert-deftest ox-slidev-export-preserves-block-math-inside-right-slot-fragment ()
+  (ox-slidev-test-with-temp-org
+      "* Math\n:PROPERTIES:\n:SLIDEV_LAYOUT: two-cols\n:END:\nLeft copy\n#+begin_right\n#+begin_fragment after at=3\n\\[\na^2 + b^2 = c^2\n\\]\n#+end_fragment\n#+end_right\n"
+    (let ((output (org-export-as 'slidev nil nil t)))
+      (should (string-match-p "layout: two-cols" output))
+      (should (string-match-p "::right::" output))
+      (should (string-match-p "<div v-after=\"3\">" output))
+      (should (string-match-p
+               (regexp-quote "$$\na^2 + b^2 = c^2\n$$")
+               output)))))
 
 (ert-deftest ox-slidev-export-deck-snapshot-basic-workflow ()
   (ox-slidev-test-with-temp-org

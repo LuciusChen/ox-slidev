@@ -33,14 +33,16 @@ After click hint
 #+end_fragment
 
 * Two Cols
-#+begin_two_cols layoutClass="gap-16"
+:PROPERTIES:
+:SLIDEV_LAYOUT: two-cols
+:SLIDEV_FM_layoutClass: gap-16
+:END:
 You can generate table of contents with components.
 
 #+begin_right
 #+begin_toc text-sm minDepth=1 maxDepth=2
 #+end_toc
 #+end_right
-#+end_two_cols
 
 * Motion
 #+begin_arrow x1=350 y1=310 x2=195 y2=342 color=#953 width=2 arrowSize=1
@@ -71,11 +73,11 @@ Dark mode helper
 #+end_powered_by_slidev
 
 * Gallery
-#+begin_image_right image="https://cover.sli.dev"
-#+begin_slide_center
-Image layout wrapper with centered caption
-#+end_slide_center
-#+end_image_right
+:PROPERTIES:
+:SLIDEV_LAYOUT: image-right
+:SLIDEV_FM_image: https://cover.sli.dev
+:END:
+Image layout with centered caption
 
 * Code
 #+ATTR_SLIDEV: :code {all|2|4}

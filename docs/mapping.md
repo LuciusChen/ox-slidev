@@ -34,15 +34,6 @@ Goal: treat Org as the authoring language and Slidev Markdown as the runtime tar
 | `#+begin_notes` | `<!-- ... -->` | full | Speaker notes block |
 | `#+begin_slot name` | `::name::` | full | Default name is `default` |
 | `#+begin_left/right/top/bottom` | `::left::` etc. | full | Slot aliases |
-| `#+begin_cover ...` | `layout: cover` plus body | full | Layout wrapper for cover slides |
-| `#+begin_slide_center ...` | `layout: center` plus body | full | Uses `slide_` prefix to avoid Org `center` block conflict |
-| `#+begin_slide_quote ...` | `layout: quote` plus body | full | Uses `slide_` prefix to avoid Org `quote` block conflict |
-| `#+begin_fact ...` | `layout: fact` plus body | full | Layout wrapper |
-| `#+begin_statement ...` | `layout: statement` plus body | full | Layout wrapper |
-| `#+begin_image_left image=...` | `layout: image-left` plus body | full | Wrapper params become slide frontmatter |
-| `#+begin_image_right image=...` | `layout: image-right` plus body | full | Wrapper params become slide frontmatter |
-| `#+begin_two_cols ...` | `layout: two-cols` plus body | full | Optional `layoutClass=` or `class=` maps to `layoutClass` |
-| `#+begin_two_cols_header ...` | `layout: two-cols-header` plus body | full | Lets body stay Org-native while inferring layout |
 | `#+begin_fragment` | `<div v-click>...</div>` | full | Default fragment |
 | `#+begin_fragment at=2 once` | `<div v-click.once="2">` | full | Numeric token also supported |
 | `#+begin_fragment after at=3` | `<div v-after="3">` | full | Progressive reveal after step |
@@ -80,13 +71,16 @@ Goal: treat Org as the authoring language and Slidev Markdown as the runtime tar
 | LaTeX fragments/environments | full | Preserved in markdown form for Slidev math rendering |
 | Advanced list attributes | partial | Prefer explicit `clicks` / `fragment` blocks; no implicit list attr magic |
 | Rich Vue components in Org syntax | full | Block-style via `component` and inline via `slidev:` links |
+| Legacy layout wrapper blocks | rejected | Use headline properties like `:SLIDEV_LAYOUT:` and slot blocks instead |
 
 ## Authoring Guidance
 
-1. Prefer mapped syntax above for predictable output.
-2. Prefer plain Org when Slidev-specific syntax does not buy you anything.
-3. Use `#+begin_export slidev` for features that do not yet have an Org mapping.
-4. When introducing a new mapping:
+1. Prefer plain Org when Slidev-specific syntax does not buy you anything.
+2. Use headline property drawers for slide layout/frontmatter.
+3. Use slot blocks (`left/right/top/bottom`) only for layout content, not for
+   declaring layout identity.
+4. Use `#+begin_export slidev` for features that do not yet have an Org mapping.
+5. When introducing a new mapping:
    - add translator logic
    - add at least one ERT case
    - update this matrix
@@ -97,13 +91,9 @@ Goal: treat Org as the authoring language and Slidev Markdown as the runtime tar
    `youtube` when the visual behavior belongs to the container.
 2. Use `light_or_dark` with nested `light` and `dark` blocks for
    theme-dependent content.
-3. Use `two_cols` or `two_cols_header` when you want the exporter to infer the
-   Slidev layout instead of writing slide frontmatter manually.
-4. Use `slide_center` and `slide_quote` rather than bare `center` and `quote`,
-   since the bare names already map to Org-native block semantics.
-5. Combine slot blocks such as `right` with either explicit layout frontmatter
-   or the layout wrappers above to stay close to Slidev layout semantics.
-6. If a component is missing an alias, prefer `component` for block content and
+3. Combine slot blocks such as `right` with explicit layout frontmatter to stay
+   close to Slidev layout semantics.
+4. If a component is missing an alias, prefer `component` for block content and
    `slidev:` links for inline content rather than raw export blocks.
 
 ## Inline Syntax Notes
