@@ -50,9 +50,14 @@ Goal: treat Org as the authoring language and Slidev Markdown as the runtime tar
 | `#+begin_light` / `#+begin_dark` | `<template #light>` / `<template #dark>` | full | Intended for use inside `light_or_dark` |
 | `#+begin_component Name ...` | `<Name ...>` block | full | Generic component wrapper for Slidev/Vue components |
 | `#+begin_vdrag ...` | `<div v-drag ...>` block | full | Draggable block wrapper |
-| `[[slidev:Name::foo=bar|flag]]` | `<Name foo="bar" flag />` | full | Inline self-closing component syntax |
+
+## Inline Components
+
+| Org input | Slidev output | Status | Notes |
+|---|---|---|---|
+| `[[slidev:Name::foo=bar\|flag]]` | `<Name foo="bar" flag />` | full | Inline self-closing component syntax |
 | `[[slidev:Name::foo=bar][Body]]` | `<Name foo="bar">Body</Name>` | full | Inline component with body |
-| `[[slidev:div::class=\"...\"|@click=\"...\"][Body]]` | Vue attrs with quoted values | full | Supports quoted values and Vue-style attrs inline |
+| `[[slidev:div::class=\"...\"\|@click=\"...\"][Body]]` | Vue attrs with quoted values | full | Supports quoted values and Vue-style attrs inline |
 
 ## Blocks and Links
 
@@ -71,7 +76,7 @@ Goal: treat Org as the authoring language and Slidev Markdown as the runtime tar
 | LaTeX fragments/environments | full | Preserved in markdown form for Slidev math rendering |
 | Advanced list attributes | partial | Prefer explicit `clicks` / `fragment` blocks; no implicit list attr magic |
 | Rich Vue components in Org syntax | full | Block-style via `component` and inline via `slidev:` links |
-| Legacy layout wrapper blocks | rejected | Use headline properties like `:SLIDEV_LAYOUT:` and slot blocks instead |
+| Legacy layout wrapper blocks | rejected | Rejected for layout declaration only; use headline properties for layout and keep nesting for actual content blocks |
 
 ## Authoring Guidance
 

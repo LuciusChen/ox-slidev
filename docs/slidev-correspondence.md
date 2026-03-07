@@ -3,12 +3,20 @@
 Use this when you know what you want to see in the slide, but do not yet know
 which Slidev or Org syntax to write.
 
+For most users, this is the main document to read first.
+Only read the other docs when you need more detail.
+
 The canonical rule stays the same:
 
 - Slide layout lives in headline properties.
 - Slot content lives in `left/right/top/bottom` blocks.
 - Reveal behavior lives in `fragment` and `clicks`.
 - Complex Vue stays in `export slidev`.
+
+This means:
+
+- content nesting is normal
+- layout wrapper syntax is not
 
 If you stay inside the patterns in this file, you can start writing decks
 without first reading the official Slidev docs.

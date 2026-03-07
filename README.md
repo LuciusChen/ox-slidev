@@ -49,22 +49,27 @@ If you want automatic re-export on save:
 M-x org-slidev-auto-export-mode
 ```
 
+## Read This First
+
+If you want to start writing, read only these two files:
+
+1. [docs/slidev-correspondence.md](docs/slidev-correspondence.md)
+   Visible result -> Slidev syntax -> Org syntax.
+2. [docs/walkthrough.md](docs/walkthrough.md)
+   One real deck from metadata to preview, based on `showcase.org`.
+
+Everything else is reference material:
+
+- [docs/minimal-authoring.md](docs/minimal-authoring.md): stable authoring rules
+- [docs/mapping.md](docs/mapping.md): full mapping contract
+- [docs/fixtures.md](docs/fixtures.md): sample deck index
+
 ## Recommended Path
 
 1. Plain Org first.
 2. Stable `ox-slidev` syntax only when it removes repetition.
 3. Advanced Slidev-specific syntax only when the deck clearly benefits.
 4. Raw `export slidev` as the last resort.
-
-Start here:
-- [docs/slidev-correspondence.md](docs/slidev-correspondence.md): visible result
-  -> Slidev syntax -> Org syntax, intended as the main writing guide
-- [docs/walkthrough.md](docs/walkthrough.md): one real deck from metadata to
-  preview, based on `showcase.org`
-- [docs/minimal-authoring.md](docs/minimal-authoring.md): recommended stable
-  surface
-- [docs/mapping.md](docs/mapping.md): full Org -> Slidev mapping
-- [docs/fixtures.md](docs/fixtures.md): which sample deck to inspect for what
 
 Minimal example:
 
