@@ -15,14 +15,15 @@ From Org source to a talk-shaped Slidev deck
 Inline status [[slidev:Badge::type=warning][Internal Preview]]
 
 * Agenda
+This talk is about turning one Org source file into a deck that is readable
+while drafting, reviewable in git, and presentable in Slidev.
+
 #+begin_clicks at=2
-- Problem framing
-- Working assumptions
-- Key result
-- Implementation shape
-- Feedback and rollout
-- Rollout steps
-- Delivery plan
+- Why hand-edited markdown keeps drifting from the source
+- The minimum mapping rules that keep Org readable
+- Which Slidev features are worth exposing directly
+- How the export and preview loop changes review speed
+- What a realistic rollout path looks like for a team
 #+end_clicks
 
 #+begin_notes
@@ -35,6 +36,9 @@ Set the context before showing details.
 :END:
 This deck stays mostly plain Org and only uses explicit Slidev mappings where
 they improve the presentation.
+
+The intent is not to recreate Slidev in Org. The intent is to keep the writing
+surface small while still covering the features a normal technical talk needs.
 
 #+begin_toc text-sm minDepth=1 maxDepth=2
 #+end_toc
@@ -95,6 +99,9 @@ One source file serves drafting, code review, and live presentation.
 Reviewer note: markdown output remains hand-auditable.
 #+end_vdrag
 
+That is the real behavior change: the demo stops being a last-mile formatting
+step and becomes part of normal editing.
+
 * Early Feedback
 :PROPERTIES:
 :SLIDEV_TRANSITION: fade-out
@@ -113,6 +120,10 @@ Use this as a stand-in for real team feedback until we have our own examples.
 * Demo Clip
 The deck is useful only if the preview loop is short enough to use during
 editing.
+
+In practice this means exporting after small edits, checking layout drift
+quickly, and keeping the deck close to the source instead of polishing at the
+very end.
 
 #+begin_youtube id=dQw4w9WgXcQ width=640 height=360
 #+end_youtube
@@ -140,6 +151,9 @@ The output still reads like markdown instead of generated noise.[fn:readable]
 
 * Theme Check
 This deck should remain readable in either theme.
+
+The point is not theme tricks by themselves. The point is that the Org source
+does not need to change just because the presentation theme changes.
 
 #+begin_light_or_dark
 #+begin_light
@@ -172,6 +186,7 @@ The point is predictable authoring, not maximum abstraction.
 - Org stays the writing format.
 - Slidev stays the runtime format.
 - The exporter keeps the mapping explicit and reviewable.
+- The deck remains understandable even before rendering.
 
 * Close
 :PROPERTIES:

@@ -19,15 +19,17 @@ Inline status <Badge type="warning">Internal Preview</Badge>
 
 # Agenda
 
+This talk is about turning one Org source file into a deck that is readable
+while drafting, reviewable in git, and presentable in Slidev.
+
+
 <v-clicks at="2">
 
--   Problem framing
--   Working assumptions
--   Key result
--   Implementation shape
--   Feedback and rollout
--   Rollout steps
--   Delivery plan
+-   Why hand-edited markdown keeps drifting from the source
+-   The minimum mapping rules that keep Org readable
+-   Which Slidev features are worth exposing directly
+-   How the export and preview loop changes review speed
+-   What a realistic rollout path looks like for a team
 
 </v-clicks>
 
@@ -44,6 +46,9 @@ layout: center
 
 This deck stays mostly plain Org and only uses explicit Slidev mappings where
 they improve the presentation.
+
+The intent is not to recreate Slidev in Org. The intent is to keep the writing
+surface small while still covering the features a normal technical talk needs.
 
 
 <Toc text-sm minDepth="1" maxDepth="2" />
@@ -122,6 +127,9 @@ Reviewer note: markdown output remains hand-auditable.
 
 </div>
 
+That is the real behavior change: the demo stops being a last-mile formatting
+step and becomes part of normal editing.
+
 ---
 transition: fade-out
 ---
@@ -149,6 +157,10 @@ Use this as a stand-in for real team feedback until we have our own examples.
 
 The deck is useful only if the preview loop is short enough to use during
 editing.
+
+In practice this means exporting after small edits, checking layout drift
+quickly, and keeping the deck close to the source instead of polishing at the
+very end.
 
 
 <Youtube id="dQw4w9WgXcQ" width="640" height="360" />
@@ -185,6 +197,9 @@ The output still reads like markdown instead of generated noise.[^readable]
 # Theme Check
 
 This deck should remain readable in either theme.
+
+The point is not theme tricks by themselves. The point is that the Org source
+does not need to change just because the presentation theme changes.
 
 
 <LightOrDark>
@@ -238,6 +253,7 @@ The point is predictable authoring, not maximum abstraction.
 -   Org stays the writing format.
 -   Slidev stays the runtime format.
 -   The exporter keeps the mapping explicit and reviewable.
+-   The deck remains understandable even before rendering.
 
 ---
 layout: quote
