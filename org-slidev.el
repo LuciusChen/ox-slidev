@@ -289,7 +289,7 @@ Kills any previously running server first."
      ((string-prefix-p "killed" status)
       (message "org-slidev: server killed"))
      (t
-     (message "org-slidev: server event: %s" status))))
+      (message "org-slidev: server event: %s" status))))
   (when (not (process-live-p process))
     (setq org-slidev--process nil)
     (setq org-slidev--preview-file nil)))

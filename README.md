@@ -57,6 +57,10 @@ M-x org-slidev-auto-export-mode
 4. Raw `export slidev` as the last resort.
 
 Start here:
+- [docs/slidev-correspondence.md](docs/slidev-correspondence.md): visible result
+  -> Slidev syntax -> Org syntax, intended as the main writing guide
+- [docs/walkthrough.md](docs/walkthrough.md): one real deck from metadata to
+  preview, based on `showcase.org`
 - [docs/minimal-authoring.md](docs/minimal-authoring.md): recommended stable
   surface
 - [docs/mapping.md](docs/mapping.md): full Org -> Slidev mapping

@@ -164,6 +164,9 @@ Returns an alist."
       (when-let* ((val (org-element-property (intern (concat ":" (car pair)))
                                              headline)))
         (push (cons (cdr pair) (string-trim val)) fm)))
+    ;; Generic property drawer keys are not exposed with stable original case
+    ;; in the export-time HEADLINE object, so scan the source drawer directly to
+    ;; preserve keys like `layoutClass` and `routerMode`.
     (org-with-point-at (org-element-property :begin headline)
       (save-excursion
         (forward-line 1)
@@ -171,11 +174,13 @@ Returns an alist."
           (forward-line 1)
           (while (and (not (eobp))
                       (not (looking-at-p "[ \t]*:END:[ \t]*$")))
-            (when (looking-at "[ \t]*:\\(SLIDEV_FM_[^:]+\\):[ \t]*\\(.*\\)$")
-              (let ((fm-key (substring (match-string 1) (length "SLIDEV_FM_")))
-                    (val (string-trim (match-string 2))))
-                (unless (string-empty-p val)
-                  (push (cons fm-key val) fm))))
+            (when (looking-at
+                   "[ \t]*:\\(SLIDEV_FM_[^:]+\\):[ \t]*\\(.*?\\)[ \t]*$")
+              (let* ((raw-key (match-string 1))
+                     (raw-val (match-string 2))
+                     (fm-key (substring raw-key (length "SLIDEV_FM_"))))
+                (unless (string-empty-p (string-trim raw-val))
+                  (push (cons fm-key (string-trim raw-val)) fm))))
             (forward-line 1)))))
     (nreverse fm)))
 

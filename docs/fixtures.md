@@ -39,3 +39,4 @@ to prove a different authoring path.
 - Purpose: provide a more normal presentation-shaped demo with text flow,
   tables, LaTeX, image layout, notes, and code.
 - Use when: checking the visible demo output or validating everyday talk content.
+- Companion doc: [walkthrough.md](./walkthrough.md)
