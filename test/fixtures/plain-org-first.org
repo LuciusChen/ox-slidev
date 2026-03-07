@@ -1,0 +1,25 @@
+#+TITLE: Team Notes
+#+AUTHOR: Team Ox
+#+SLIDEV_THEME: seriph
+
+* Goals
+- Reduce export surprises
+- Keep authoring readable
+- Preview early
+
+* Demo
+#+ATTR_SLIDEV: :width 280
+[[file:demo.png]]
+
+#+begin_notes
+Mention that images can stay plain Org.
+#+end_notes
+
+* Snippet
+#+begin_src emacs-lisp
+(message "plain org first")
+#+end_src
+
+#+SLIDE: new
+
+Simple manual break.

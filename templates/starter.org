@@ -1,0 +1,31 @@
+#+TITLE: Demo
+#+AUTHOR: Your Name
+#+SLIDEV_THEME: seriph
+
+* Opening
+Welcome to Slidev from Org.
+
+* Agenda
+#+begin_clicks at=2
+- Introduce the topic
+- Show one concrete example
+- End with the next step
+#+end_clicks
+
+* Details
+#+begin_two_cols layoutClass="gap-12"
+- Keep the source readable
+- Prefer plain Org first
+
+#+begin_right
+#+begin_notes
+Pause after the second point.
+#+end_notes
+#+end_right
+#+end_two_cols
+
+* Example
+#+ATTR_SLIDEV: :code {1|3}
+#+begin_src emacs-lisp
+(message "hello from ox-slidev")
+#+end_src

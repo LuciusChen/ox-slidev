@@ -1,0 +1,86 @@
+#+TITLE: Official Style Showcase
+#+AUTHOR: Slidev-inspired
+#+SLIDEV_THEME: seriph
+#+SLIDEV_BACKGROUND: https://cover.sli.dev
+#+SLIDEV_CLASS: text-center
+#+SLIDEV_TRANSITION: slide-left
+#+SLIDEV_FM_COMARK: true
+
+* Welcome
+Press Space for next page [[slidev:carbon:arrow-right::class=inline-block]]
+Inline badge [[slidev:Badge::type=warning][Beta]]
+
+#+begin_component div @click="$slidev.nav.next" class="mt-12 py-1" hover:bg="white op-10"
+Press Space for next page
+#+end_component
+
+#+begin_link href=https://sli.dev target=_blank
+Slidev Docs
+#+end_link
+
+* Animations
+:PROPERTIES:
+:SLIDEV_TRANSITION: fade-out
+:END:
+#+begin_clicks at=2
+- Text-based
+- Themable
+- Interactive
+#+end_clicks
+
+#+begin_fragment after at=3
+After click hint
+#+end_fragment
+
+* Two Cols
+#+begin_two_cols layoutClass="gap-16"
+You can generate table of contents with components.
+
+#+begin_right
+#+begin_toc text-sm minDepth=1 maxDepth=2
+#+end_toc
+#+end_right
+#+end_two_cols
+
+* Motion
+#+begin_arrow x1=350 y1=310 x2=195 y2=342 color=#953 width=2 arrowSize=1
+#+end_arrow
+
+#+begin_vdrag [120,140,220,auto] class="w-40 opacity-80"
+Draggable note
+#+end_vdrag
+
+#+begin_transform scale=0.9
+#+begin_tweet id=1894208196031267235 scale=0.8
+#+end_tweet
+#+end_transform
+
+#+begin_youtube id=dQw4w9WgXcQ width=320 height=180
+#+end_youtube
+
+#+begin_light_or_dark
+#+begin_light
+Light mode helper
+#+end_light
+#+begin_dark
+Dark mode helper
+#+end_dark
+#+end_light_or_dark
+
+#+begin_powered_by_slidev
+#+end_powered_by_slidev
+
+* Gallery
+#+begin_image_right image="https://cover.sli.dev"
+#+begin_slide_center
+Image layout wrapper with centered caption
+#+end_slide_center
+#+end_image_right
+
+* Code
+#+ATTR_SLIDEV: :code {all|2|4}
+#+begin_src ts
+import { ref } from 'vue'
+
+const count = ref(0)
+#+end_src

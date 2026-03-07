@@ -37,6 +37,7 @@ Add the repository to `load-path`, then require the packages:
 Open an Org file and run:
 
 ```text
+M-x org-slidev-insert-starter
 M-x org-slidev-export-to-file
 M-x org-slidev-preview
 M-x org-slidev-stop-server
@@ -48,43 +49,48 @@ If you want automatic re-export on save:
 M-x org-slidev-auto-export-mode
 ```
 
-## Example
+## Recommended Path
+
+1. Plain Org first.
+2. Stable `ox-slidev` syntax only when it removes repetition.
+3. Advanced Slidev-specific syntax only when the deck clearly benefits.
+4. Raw `export slidev` as the last resort.
+
+Start here:
+- [docs/minimal-authoring.md](docs/minimal-authoring.md): recommended stable
+  surface
+- [docs/mapping.md](docs/mapping.md): full Org -> Slidev mapping
+- [docs/fixtures.md](docs/fixtures.md): which sample deck to inspect for what
+
+Minimal example:
 
 ```org
 #+TITLE: Demo
-#+AUTHOR: Alice
 #+SLIDEV_THEME: seriph
 
 * Intro
 Hello Slidev
 
-* Code
-#+ATTR_SLIDEV: :code {1|3}
-#+begin_src emacs-lisp
-(message "hello")
-#+end_src
-
-* Image
-#+ATTR_SLIDEV: :width 320
-[[file:demo.png]]
-
 * Notes
 #+begin_notes
 Talk track for this slide.
 #+end_notes
+
+* Flow
+#+begin_clicks at=2
+- one
+- two
+#+end_clicks
 ```
 
-## Supported MVP features
+Use advanced syntax sparingly:
+- `two_cols`, `image_right`, `fragment`, `clicks` for repeated Slidev patterns
+- `slidev:` inline links for occasional components
+- `component` or raw `export slidev` only when there is no simpler readable form
 
-- `#+SLIDE_LEVEL:` to choose which headline level starts a new slide
-- document frontmatter from Org keywords like `#+TITLE:` and `#+AUTHOR:`
-- Slidev frontmatter keywords such as `#+SLIDEV_THEME:`
-- slide-level frontmatter from property drawers
-- `#+SLIDE: new` manual slide separators
-- special blocks: `notes`, `slot`, `left`, `right`, `top`, `bottom`, `fragment`
-- fenced code blocks with `#+ATTR_SLIDEV: :code ...`
-- image width via `#+ATTR_SLIDEV: :width ...`
-- preview server helpers from `org-slidev.el`
+Starter deck:
+- built-in template: [starter.org](/home/lucius/ox-slidev/templates/starter.org)
+- insert command: `M-x org-slidev-insert-starter`
 
 ## Development
 
@@ -94,4 +100,26 @@ Run tests with:
 make test
 ```
 
-The test suite covers the export backend and the command-layer export path.
+Run byte compilation with:
+
+```sh
+make compile
+```
+
+Run the end-to-end Slidev smoke build with:
+
+```sh
+make smoke
+```
+
+Build a fixed demo directory you can inspect locally:
+
+```sh
+make demo-build
+make demo-serve
+```
+
+Then open `http://127.0.0.1:4173`.
+The built files are written to `test/smoke-dist/`.
+
+The test suite covers the export backend, command-layer behavior, and fixture-based regression output.

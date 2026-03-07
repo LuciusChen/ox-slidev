@@ -1,0 +1,12 @@
+#+TITLE: Baseline Deck
+#+AUTHOR: Dev
+#+SLIDEV_THEME: seriph
+#+SLIDEV_TRANSITION: slide-left
+
+* Intro
+Hello baseline
+
+* Fragments
+#+begin_fragment at=2 once
+Second step
+#+end_fragment

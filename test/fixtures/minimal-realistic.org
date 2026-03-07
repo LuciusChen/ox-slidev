@@ -1,0 +1,43 @@
+#+TITLE: Product Update
+#+AUTHOR: Team Ox
+#+SLIDEV_THEME: seriph
+
+* Opening
+#+begin_cover class="px-14"
+#+begin_slide_center
+Q2 Product Update
+#+end_slide_center
+#+end_cover
+
+* Status
+#+begin_two_cols layoutClass="gap-12"
+- Export path is stable
+- Demo build is reproducible
+- Authoring surface is getting smaller
+
+#+begin_right
+#+begin_notes
+Keep this slide short.
+#+end_notes
+#+end_right
+#+end_two_cols
+
+* Delivery
+#+begin_clicks at=2
+- Add fixture
+- Lock golden
+- Run build
+#+end_clicks
+
+#+begin_fragment after at=3
+Ready for review
+#+end_fragment
+
+* Showcase
+#+begin_image_right image="https://cover.sli.dev"
+[[slidev:Badge::type=warning][Preview]]
+
+#+begin_src ts
+const shipped = true
+#+end_src
+#+end_image_right

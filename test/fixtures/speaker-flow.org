@@ -1,0 +1,40 @@
+#+TITLE: Weekly Review
+#+AUTHOR: Team Ox
+#+SLIDEV_THEME: seriph
+
+* Opening
+#+begin_cover class="px-14"
+Weekly Review
+#+end_cover
+
+* Progress
+#+begin_clicks at=2
+- Export backend is stable
+- Demo build is inspectable
+- Docs now separate stable and advanced paths
+#+end_clicks
+
+#+begin_notes
+Pause after the second bullet.
+#+end_notes
+
+* Risks
+#+begin_two_cols layoutClass="gap-10"
+- Keep syntax surface small
+- Avoid hidden behavior
+
+#+begin_right
+#+begin_fragment after at=2
+Prefer explicit blocks over magic.
+#+end_fragment
+#+end_right
+#+end_two_cols
+
+* Close
+#+begin_image_right image="https://cover.sli.dev"
+[[slidev:Badge::type=warning][Watch]]
+
+#+begin_src text
+Next: use this on a real deck.
+#+end_src
+#+end_image_right

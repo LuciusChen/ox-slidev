@@ -4,7 +4,7 @@
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "27.1") (org "9.5") (ox-slidev "0.1.0"))
 ;; Keywords: org, export, slidev, presentation
-;; URL: https://github.com/your-repo/ox-slidev
+;; URL: https://github.com/LuciusChen/ox-slidev
 
 ;;; Commentary:
 
@@ -28,6 +28,8 @@
 
 (require 'ox-slidev)
 (require 'subr-x)
+(require 'cl-lib)
+(require 'org)
 
 
 ;;; ============================================================
@@ -71,6 +73,18 @@ Example: if nil and source is ~/talks/demo.org, output is ~/talks/demo.md."
   :type 'string
   :group 'org-slidev)
 
+(defcustom org-slidev-project-root-files
+  '("package.json" "pnpm-lock.yaml" "yarn.lock" "package-lock.json" ".git")
+  "Marker files used to detect the Slidev project root."
+  :type '(repeat string)
+  :group 'org-slidev)
+
+(defcustom org-slidev-project-root-function nil
+  "Optional function used to resolve project root for preview.
+When non-nil, called with one argument MD-FILE and should return a directory."
+  :type '(choice (const nil) function)
+  :group 'org-slidev)
+
 (defcustom org-slidev-before-export-hook nil
   "Hook run before exporting an Org file to Slidev Markdown."
   :type 'hook
@@ -81,6 +95,11 @@ Example: if nil and source is ~/talks/demo.org, output is ~/talks/demo.md."
 Functions are called with the output file path as argument."
   :type 'hook
   :group 'org-slidev)
+
+(defconst org-slidev-starter-template-file
+  (expand-file-name "templates/starter.org"
+                    (file-name-directory (or load-file-name buffer-file-name)))
+  "Built-in starter deck template file for `org-slidev'.")
 
 
 ;;; ============================================================
@@ -140,6 +159,14 @@ Functions are called with the output file path as argument."
   "Return the local URL for the Slidev dev server."
   (format "http://localhost:%d" org-slidev-dev-port))
 
+(defun org-slidev--project-root (md-file)
+  "Return best project root for MD-FILE."
+  (or (and org-slidev-project-root-function
+           (funcall org-slidev-project-root-function md-file))
+      (cl-loop for marker in org-slidev-project-root-files
+               thereis (locate-dominating-file md-file marker))
+      (file-name-directory md-file)))
+
 (defun org-slidev--open-browser ()
   "Open the Slidev dev server URL in the default browser."
   (let ((url (org-slidev--dev-url)))
@@ -151,10 +178,23 @@ Functions are called with the output file path as argument."
   (or (string-match-p (regexp-quote (org-slidev--dev-url)) output)
       (string-match-p "\\bLocal:\\b" output)))
 
+(defun org-slidev--starter-template ()
+  "Return the built-in starter deck contents."
+  (with-temp-buffer
+    (insert-file-contents org-slidev-starter-template-file)
+    (buffer-string)))
+
 
 ;;; ============================================================
 ;;; Export
 ;;; ============================================================
+
+;;;###autoload
+(defun org-slidev-insert-starter ()
+  "Insert the built-in starter deck at point in the current Org buffer."
+  (interactive)
+  (org-slidev--assert-org-buffer)
+  (insert (org-slidev--starter-template)))
 
 ;;;###autoload
 (defun org-slidev-export-to-file (&optional org-file)
@@ -207,11 +247,12 @@ Kills any previously running server first."
   (when (org-slidev--process-live-p)
     (org-slidev-stop-server))
   (let* ((buf  (org-slidev--get-or-create-process-buffer))
-         (args (org-slidev--build-dev-args md-file))
+         (project-root (org-slidev--project-root md-file))
+         (args (org-slidev--build-dev-args md-file project-root))
          (parts (org-slidev--command-parts))
          (cmd  (car parts))
          (cmd-args (append (cdr parts) args))
-         (default-directory (file-name-directory md-file)))
+         (default-directory project-root))
     (with-current-buffer buf
       (erase-buffer)
       (insert (format "org-slidev: starting server\n  cmd: %s %s\n  file: %s\n\n"
@@ -227,11 +268,15 @@ Kills any previously running server first."
     (set-process-filter  org-slidev--process #'org-slidev--process-filter)
     org-slidev--process))
 
-(defun org-slidev--build-dev-args (md-file)
-  "Build argument list for `slidev dev' given MD-FILE."
+(defun org-slidev--build-dev-args (md-file &optional project-root)
+  "Build argument list for `slidev dev' given MD-FILE and PROJECT-ROOT."
+  (let* ((root (or project-root (org-slidev--project-root md-file)))
+         (target (if root
+                     (file-relative-name md-file root)
+                   (file-name-nondirectory md-file))))
   (list "dev"
-        (file-name-nondirectory md-file)
-        "--port" (number-to-string org-slidev-dev-port)))
+        target
+        "--port" (number-to-string org-slidev-dev-port))))
 
 (defun org-slidev--process-sentinel (process event)
   "Handle Slidev server PROCESS state changes (EVENT)."
