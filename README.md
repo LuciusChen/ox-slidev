@@ -38,6 +38,9 @@ Open an Org file and run:
 
 ```text
 M-x org-slidev-insert-starter
+M-x org-slidev-set-layout
+M-x org-slidev-set-frontmatter
+M-x org-slidev-insert-block
 M-x org-slidev-export-to-file
 M-x org-slidev-preview
 M-x org-slidev-stop-server
@@ -48,6 +51,15 @@ If you want automatic re-export on save:
 ```text
 M-x org-slidev-auto-export-mode
 ```
+
+For block expansion via `org-tempo` without overriding built-in templates:
+
+```text
+M-x org-slidev-install-structure-templates
+```
+
+This installs non-conflicting keys such as `<svnotes`, `<svright`, `<svclicks`,
+and `<svfragment`.
 
 ## Read This First
 

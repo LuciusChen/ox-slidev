@@ -96,6 +96,40 @@ Functions are called with the output file path as argument."
   :type 'hook
   :group 'org-slidev)
 
+(defcustom org-slidev-common-layouts
+  '("cover"
+    "center"
+    "quote"
+    "fact"
+    "statement"
+    "two-cols"
+    "two-cols-header"
+    "image-left"
+    "image-right")
+  "Common Slidev layout names offered by `org-slidev-set-layout'."
+  :type '(repeat string)
+  :group 'org-slidev)
+
+(defcustom org-slidev-common-frontmatter-keys
+  '("layoutClass" "image" "class" "background" "transition" "hide")
+  "Common slide-level frontmatter keys offered by `org-slidev-set-frontmatter'."
+  :type '(repeat string)
+  :group 'org-slidev)
+
+(defcustom org-slidev-structure-templates
+  '(("svnotes" . "notes")
+    ("svright" . "right")
+    ("svleft" . "left")
+    ("svtop" . "top")
+    ("svbottom" . "bottom")
+    ("svclicks" . "clicks")
+    ("svfragment" . "fragment"))
+  "Non-conflicting org-tempo templates for common Slidev blocks.
+Each element is (KEY . TEMPLATE) and is added by
+`org-slidev-install-structure-templates'."
+  :type '(alist :key-type string :value-type string)
+  :group 'org-slidev)
+
 (defconst org-slidev-starter-template-file
   (expand-file-name "templates/starter.org"
                     (file-name-directory (or load-file-name buffer-file-name)))
@@ -184,10 +218,102 @@ Functions are called with the output file path as argument."
     (insert-file-contents org-slidev-starter-template-file)
     (buffer-string)))
 
+(defun org-slidev--current-heading-point ()
+  "Return the current heading point or signal a user-facing error."
+  (org-slidev--assert-org-buffer)
+  (save-excursion
+    (condition-case nil
+        (progn
+          (org-back-to-heading t)
+          (point))
+      (error
+       (user-error "Point is not inside an Org headline")))))
+
+(defun org-slidev--set-slide-property (property value)
+  "Set current slide PROPERTY to VALUE.
+If VALUE is empty, remove PROPERTY instead."
+  (let ((heading-point (org-slidev--current-heading-point)))
+    (save-excursion
+      (goto-char heading-point)
+      (if (string-empty-p value)
+          (org-entry-delete (point) property)
+        (org-entry-put (point) property value)))))
+
+(defun org-slidev--block-skeleton (kind)
+  "Return insertion skeleton for Slidev block KIND."
+  (pcase kind
+    ("notes" "#+begin_notes\n\n#+end_notes\n")
+    ("right" "#+begin_right\n\n#+end_right\n")
+    ("left" "#+begin_left\n\n#+end_left\n")
+    ("top" "#+begin_top\n\n#+end_top\n")
+    ("bottom" "#+begin_bottom\n\n#+end_bottom\n")
+    ("clicks" "#+begin_clicks\n- \n#+end_clicks\n")
+    ("fragment" "#+begin_fragment\n\n#+end_fragment\n")
+    ("export-slidev" "#+begin_export slidev\n\n#+end_export\n")
+    (_ nil)))
+
 
 ;;; ============================================================
 ;;; Export
 ;;; ============================================================
+
+;;;###autoload
+(defun org-slidev-set-layout (layout)
+  "Set `SLIDEV_LAYOUT' on the current headline to LAYOUT."
+  (interactive
+   (list
+    (completing-read "Slidev layout: "
+                     org-slidev-common-layouts
+                     nil
+                     t)))
+  (org-slidev--set-slide-property "SLIDEV_LAYOUT" layout)
+  (message "org-slidev: set layout to %s" layout))
+
+;;;###autoload
+(defun org-slidev-set-frontmatter (key value)
+  "Set generic slide frontmatter KEY to VALUE on the current headline.
+This writes a `SLIDEV_FM_<key>' property in the current headline drawer."
+  (interactive
+   (list
+    (completing-read "Frontmatter key: "
+                     org-slidev-common-frontmatter-keys
+                     nil
+                     nil)
+    (read-string "Frontmatter value: ")))
+  (let ((property (concat "SLIDEV_FM_" key)))
+    (org-slidev--set-slide-property property value)
+    (message "org-slidev: set %s to %s" key value)))
+
+;;;###autoload
+(defun org-slidev-insert-block (kind)
+  "Insert a common Slidev block KIND at point."
+  (interactive
+   (list
+    (completing-read "Block: "
+                     '("notes" "right" "left" "top" "bottom"
+                       "clicks" "fragment" "component" "export-slidev")
+                     nil
+                     t)))
+  (pcase kind
+    ("component"
+     (let ((name (read-string "Component name: ")))
+       (insert (format "#+begin_component %s\n\n#+end_component\n" name))))
+    (_
+     (insert (or (org-slidev--block-skeleton kind)
+                 (user-error "Unsupported block kind: %s" kind))))))
+
+;;;###autoload
+(defun org-slidev-install-structure-templates ()
+  "Install non-conflicting Slidev org-tempo templates.
+This adds `org-slidev-structure-templates' to `org-structure-template-alist'
+without overriding existing keys."
+  (interactive)
+  (require 'org-tempo)
+  (dolist (entry org-slidev-structure-templates)
+    (unless (assoc (car entry) org-structure-template-alist)
+      (add-to-list 'org-structure-template-alist entry t)))
+  (message "org-slidev: installed %d structure templates"
+           (length org-slidev-structure-templates)))
 
 ;;;###autoload
 (defun org-slidev-insert-starter ()

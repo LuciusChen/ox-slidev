@@ -20,6 +20,54 @@
       (should (string-match-p "\\* Opening" content))
       (should (string-match-p "#\\+begin_src emacs-lisp" content)))))
 
+(ert-deftest org-slidev-set-layout-writes-slidev-layout-property ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Intro\nBody\n")
+    (goto-char (point-max))
+    (org-slidev-set-layout "two-cols")
+    (goto-char (point-min))
+    (re-search-forward "^\\* Intro$")
+    (should (equal "two-cols" (org-entry-get (point) "SLIDEV_LAYOUT")))))
+
+(ert-deftest org-slidev-set-frontmatter-writes-generic-slide-property ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Intro\nBody\n")
+    (goto-char (point-max))
+    (org-slidev-set-frontmatter "layoutClass" "gap-12")
+    (goto-char (point-min))
+    (re-search-forward "^\\* Intro$")
+    (should (equal "gap-12"
+                   (org-entry-get (point) "SLIDEV_FM_layoutClass")))))
+
+(ert-deftest org-slidev-insert-block-inserts-common-block-skeleton ()
+  (with-temp-buffer
+    (org-mode)
+    (org-slidev-insert-block "notes")
+    (should (equal "#+begin_notes\n\n#+end_notes\n" (buffer-string)))))
+
+(ert-deftest org-slidev-insert-block-prompts-for-component-name ()
+  (with-temp-buffer
+    (org-mode)
+    (cl-letf (((symbol-function 'read-string)
+               (lambda (&rest _) "Badge")))
+      (org-slidev-insert-block "component"))
+    (should (equal "#+begin_component Badge\n\n#+end_component\n"
+                   (buffer-string)))))
+
+(ert-deftest org-slidev-install-structure-templates-adds-non-conflicting-keys ()
+  (let ((org-structure-template-alist '(("s" . "src")
+                                        ("svnotes" . "existing"))))
+    (org-slidev-install-structure-templates)
+    (should (equal "src" (cdr (assoc "s" org-structure-template-alist))))
+    (should (equal "existing"
+                   (cdr (assoc "svnotes" org-structure-template-alist))))
+    (should (equal "fragment"
+                   (cdr (assoc "svfragment" org-structure-template-alist))))
+    (should (equal "right"
+                   (cdr (assoc "svright" org-structure-template-alist))))))
+
 (ert-deftest org-slidev-export-to-file-supports-explicit-source-file ()
   (let* ((temp-org (make-temp-file "org-slidev-" nil ".org"))
          (temp-md (concat (file-name-sans-extension temp-org) ".md"))
