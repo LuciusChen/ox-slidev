@@ -130,10 +130,18 @@ Each element is (KEY . TEMPLATE) and is added by
   :type '(alist :key-type string :value-type string)
   :group 'org-slidev)
 
-(defconst org-slidev-starter-template-file
-  (expand-file-name "templates/starter.org"
+(defconst org-slidev--templates-dir
+  (expand-file-name "templates"
                     (file-name-directory (or load-file-name buffer-file-name)))
-  "Built-in starter deck template file for `org-slidev'.")
+  "Built-in template directory for `org-slidev'.")
+
+(defcustom org-slidev-template-files
+  '(("starter" . "starter.org")
+    ("technical-talk" . "technical-talk.org")
+    ("project-update" . "project-update.org"))
+  "Built-in template names mapped to files under `org-slidev--templates-dir'."
+  :type '(alist :key-type string :value-type string)
+  :group 'org-slidev)
 
 
 ;;; ============================================================
@@ -212,11 +220,27 @@ Each element is (KEY . TEMPLATE) and is added by
   (or (string-match-p (regexp-quote (org-slidev--dev-url)) output)
       (string-match-p "\\bLocal:\\b" output)))
 
+(defun org-slidev--template-file (name)
+  "Return absolute built-in template file path for template NAME."
+  (when-let* ((file (cdr (assoc name org-slidev-template-files))))
+    (expand-file-name file org-slidev--templates-dir)))
+
+(defun org-slidev--template-names ()
+  "Return available built-in template names."
+  (mapcar #'car org-slidev-template-files))
+
 (defun org-slidev--starter-template ()
   "Return the built-in starter deck contents."
-  (with-temp-buffer
-    (insert-file-contents org-slidev-starter-template-file)
-    (buffer-string)))
+  (org-slidev--template-content "starter"))
+
+(defun org-slidev--template-content (name)
+  "Return built-in template NAME contents."
+  (let ((file (org-slidev--template-file name)))
+    (unless (and file (file-exists-p file))
+      (user-error "Unknown template: %s" name))
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-string))))
 
 (defun org-slidev--current-heading-point ()
   "Return the current heading point or signal a user-facing error."
@@ -321,6 +345,21 @@ without overriding existing keys."
   (interactive)
   (org-slidev--assert-org-buffer)
   (insert (org-slidev--starter-template)))
+
+;;;###autoload
+(defun org-slidev-insert-template (name)
+  "Insert built-in template NAME at point in the current Org buffer."
+  (interactive
+   (list
+    (completing-read "Template: "
+                     (org-slidev--template-names)
+                     nil
+                     t
+                     nil
+                     nil
+                     "starter")))
+  (org-slidev--assert-org-buffer)
+  (insert (org-slidev--template-content name)))
 
 ;;;###autoload
 (defun org-slidev-export-to-file (&optional org-file)

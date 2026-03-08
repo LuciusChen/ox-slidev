@@ -1,0 +1,67 @@
+#+TITLE: Project Update
+#+AUTHOR: Your Name
+#+SLIDEV_THEME: seriph
+
+* Opening
+:PROPERTIES:
+:SLIDEV_LAYOUT: cover
+:SLIDEV_CLASS: px-14
+:END:
+Project Update
+
+Status, risks, and next decisions.
+
+* Executive Summary
+#+begin_clicks at=2
+- What shipped since the last review
+- What is blocked
+- What decision is needed now
+#+end_clicks
+
+#+begin_notes
+Keep this slide short. The goal is alignment, not detail.
+#+end_notes
+
+* Progress
+:PROPERTIES:
+:SLIDEV_LAYOUT: two-cols
+:SLIDEV_FM_layoutClass: gap-12
+:END:
+- Export path is stable
+- Demo build is reproducible
+- Documentation is now usable by new authors
+
+#+begin_right
+#+begin_fragment after at=2
+Call out the one metric or milestone that matters most this week.
+#+end_fragment
+#+end_right
+
+* Risks
+Use this slide for the 2 to 3 issues that can still change the schedule or
+scope.
+
+| Risk | Impact | Owner |
+|------+--------+-------|
+|      |        |       |
+|      |        |       |
+
+* Demo
+:PROPERTIES:
+:SLIDEV_LAYOUT: image-right
+:SLIDEV_FM_image: https://cover.sli.dev
+:END:
+Show the latest visible result, screenshot, or user-facing change.
+
+* Next Steps
+#+begin_clicks at=2
+1. Finish the highest-risk item.
+2. Confirm the next milestone.
+3. Prepare the next review checkpoint.
+#+end_clicks
+
+* Close
+:PROPERTIES:
+:SLIDEV_LAYOUT: quote
+:END:
+End with the one decision, approval, or follow-up you need.

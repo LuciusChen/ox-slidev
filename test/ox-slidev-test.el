@@ -433,6 +433,15 @@
       (should (equal (ox-slidev-test--export-current-buffer)
                      (ox-slidev-test--read-file expected-file))))))
 
+(ert-deftest ox-slidev-export-fixture-edge-cases-golden ()
+  (let* ((root default-directory)
+         (org-file (expand-file-name "test/fixtures/edge-cases.org" root))
+         (expected-file (expand-file-name "test/fixtures/edge-cases.expected.md" root)))
+    (with-current-buffer (find-file-noselect org-file)
+      (org-mode)
+      (should (equal (ox-slidev-test--export-current-buffer)
+                     (ox-slidev-test--read-file expected-file))))))
+
 (ert-deftest ox-slidev-export-fixture-official-cool-golden ()
   (let* ((root default-directory)
          (org-file (expand-file-name "test/fixtures/official-cool.org" root))

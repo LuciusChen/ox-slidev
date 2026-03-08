@@ -37,6 +37,7 @@ Add the repository to `load-path`, then require the packages:
 Open an Org file and run:
 
 ```text
+M-x org-slidev-insert-template
 M-x org-slidev-insert-starter
 M-x org-slidev-set-layout
 M-x org-slidev-set-frontmatter
@@ -111,13 +112,22 @@ Use advanced syntax sparingly:
 - `component` or raw `export slidev` only when there is no simpler readable form
 
 Starter deck:
-- built-in template: [starter.org](/home/lucius/ox-slidev/templates/starter.org)
-- insert command: `M-x org-slidev-insert-starter`
+- built-in templates:
+  - [starter.org](/home/lucius/ox-slidev/templates/starter.org)
+  - [technical-talk.org](/home/lucius/ox-slidev/templates/technical-talk.org)
+  - [project-update.org](/home/lucius/ox-slidev/templates/project-update.org)
+- insert commands:
+  - `M-x org-slidev-insert-template`
+  - `M-x org-slidev-insert-starter`
 
 Demo deck:
 - visible demo build now uses [showcase.org](/home/lucius/ox-slidev/test/fixtures/showcase.org)
 - richer regression/demo coverage with realistic presentation content and a
   broader set of mapped Slidev features
+- fixture layers are now:
+  - `showcase.org`: realistic main-path demo
+  - `official-cool.org`: advanced mapped Slidev features
+  - `edge-cases.org`: boundaries and escape hatch cases
 
 ## Development
 

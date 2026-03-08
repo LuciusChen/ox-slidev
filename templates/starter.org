@@ -5,32 +5,57 @@
 * Opening
 :PROPERTIES:
 :SLIDEV_LAYOUT: cover
+:SLIDEV_CLASS: px-14
 :END:
-Welcome to Slidev from Org.
+Talk Title
+
+One sentence that explains what this deck is about.
 
 * Agenda
 #+begin_clicks at=2
-- Introduce the topic
-- Show one concrete example
-- End with the next step
+- Why this topic matters now
+- The main idea or design choice
+- One concrete example
+- The next step
 #+end_clicks
 
-* Details
+#+begin_notes
+State the audience and the decision this talk is trying to support.
+#+end_notes
+
+* Problem
 :PROPERTIES:
 :SLIDEV_LAYOUT: two-cols
 :SLIDEV_FM_layoutClass: gap-12
 :END:
 - Keep the source readable
-- Prefer plain Org first
+- Make review output predictable
+- Keep Slidev-specific syntax explicit
 
 #+begin_right
-#+begin_notes
-Pause after the second point.
-#+end_notes
+#+begin_fragment after at=2
+One file should serve drafting, review, and presentation.
+#+end_fragment
 #+end_right
+
+* Result
+:PROPERTIES:
+:SLIDEV_LAYOUT: image-right
+:SLIDEV_FM_image: https://cover.sli.dev
+:END:
+Show the main outcome, screenshot, chart, or visual.
+
+Inline math still works: $f(x) = x^2 + 1$
 
 * Example
 #+ATTR_SLIDEV: :code {1|3}
 #+begin_src emacs-lisp
-(message "hello from ox-slidev")
+(setq org-slidev-open-browser t)
+(message "export -> preview -> review")
 #+end_src
+
+* Close
+:PROPERTIES:
+:SLIDEV_LAYOUT: quote
+:END:
+Summarize the one thing the audience should remember.

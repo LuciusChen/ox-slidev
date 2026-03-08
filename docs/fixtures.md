@@ -30,8 +30,16 @@ to prove a different authoring path.
 ## Official Cool
 
 - Source: `test/fixtures/official-cool.org`
-- Purpose: cover richer Slidev-specific syntax and the fixed demo build.
+- Purpose: cover richer mapped Slidev syntax in a compact, advanced demo.
 - Use when: changing advanced components or slide layout/frontmatter handling.
+
+## Edge Cases
+
+- Source: `test/fixtures/edge-cases.org`
+- Purpose: cover boundary behavior, explicit default slot output, and raw
+  Slidev/markdown passthrough.
+- Use when: changing escape hatch behavior or deciding whether a feature should
+  stay raw instead of becoming new Org syntax.
 
 ## Showcase
 

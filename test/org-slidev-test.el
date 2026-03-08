@@ -9,7 +9,8 @@
   (let ((template (org-slidev--starter-template)))
     (should (string-match-p "#\\+TITLE: Demo" template))
     (should (string-match-p "#\\+begin_clicks" template))
-    (should (string-match-p ":SLIDEV_LAYOUT: two-cols" template))))
+    (should (string-match-p ":SLIDEV_LAYOUT: two-cols" template))
+    (should (string-match-p ":SLIDEV_LAYOUT: image-right" template))))
 
 (ert-deftest org-slidev-insert-starter-inserts-template-into-org-buffer ()
   (with-temp-buffer
@@ -18,7 +19,23 @@
     (let ((content (buffer-string)))
       (should (string-match-p "#\\+TITLE: Demo" content))
       (should (string-match-p "\\* Opening" content))
-      (should (string-match-p "#\\+begin_src emacs-lisp" content)))))
+      (should (string-match-p "#\\+begin_src emacs-lisp" content))
+      (should (string-match-p "\\* Close" content)))))
+
+(ert-deftest org-slidev-template-content-loads-named-template ()
+  (let ((template (org-slidev--template-content "technical-talk")))
+    (should (string-match-p "#\\+TITLE: Technical Talk" template))
+    (should (string-match-p "\\* Design" template))
+    (should (string-match-p "\\* Rollout" template))))
+
+(ert-deftest org-slidev-insert-template-inserts-selected-template ()
+  (with-temp-buffer
+    (org-mode)
+    (org-slidev-insert-template "project-update")
+    (let ((content (buffer-string)))
+      (should (string-match-p "#\\+TITLE: Project Update" content))
+      (should (string-match-p "\\* Executive Summary" content))
+      (should (string-match-p "\\* Risks" content)))))
 
 (ert-deftest org-slidev-set-layout-writes-slidev-layout-property ()
   (with-temp-buffer
