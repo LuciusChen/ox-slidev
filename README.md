@@ -77,6 +77,11 @@ Everything else is reference material:
 - [docs/mapping.md](docs/mapping.md): full mapping contract
 - [docs/fixtures.md](docs/fixtures.md): sample deck index
 
+Note:
+- GitHub does not render `.org` files completely.
+- When reading fixture or template source on GitHub, switch from Preview to Code
+  if the rendered view looks incomplete.
+
 ## Recommended Path
 
 1. Plain Org first.
