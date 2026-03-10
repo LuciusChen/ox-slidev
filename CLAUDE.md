@@ -27,6 +27,8 @@ or `special-mode` UI buffers.
 
 - Question every abstraction. If a helper, wrapper, or new file does not solve a
   concrete current problem, do not add it.
+- Prefer a few clear files over speculative splitting. Do not split files for
+  cosmetic neatness or predicted future growth alone.
 - Prefer a small number of clear files with stable responsibilities over
   cosmetic file splitting.
 - Keep one obvious authoring model. Prefer one consistent Org-to-Slidev mapping
@@ -54,6 +56,7 @@ or `special-mode` UI buffers.
 ### Naming
 
 - Public API uses the file prefix: `ox-slidev-` or `org-slidev-`.
+- Public symbols must not use double-dash names.
 - Internal helpers use double-dash private names: `ox-slidev--...`,
   `org-slidev--...`.
 - Predicates end in `-p`.
@@ -65,6 +68,8 @@ or `special-mode` UI buffers.
   `:group`.
 - Shared process/cache state uses plain `defvar`.
 - Buffer-local state, if introduced later, must use `defvar-local`.
+- Buffer-local state should be initialized with `setq-local` at the point where
+  the mode or workflow activates it.
 - Buffer-local hooks must be registered with the LOCAL argument instead of
   hidden global mutation.
 
@@ -78,6 +83,12 @@ or `special-mode` UI buffers.
   logic becomes non-trivial.
 - Keep pure data transformation separate from buffer/process side effects.
 
+### Completion
+
+- Use standard `completing-read` for interactive selection prompts.
+- If completion-at-point is introduced later, keep it fast, allow fallback when
+  appropriate, and register it buffer-locally.
+
 ### Error handling
 
 - Use `user-error` for user-caused problems such as missing file, wrong major
@@ -85,6 +96,7 @@ or `special-mode` UI buffers.
 - Use `error` only for programmer bugs or invariants that should never fail.
 - Use `condition-case` only for recoverable failures where export or preview can
   still degrade gracefully.
+- Error messages should state what is wrong, not what the user "must" do.
 
 ### Function design
 
@@ -102,13 +114,16 @@ or `special-mode` UI buffers.
 - `;;;###autoload` belongs only on real entry points: user commands, minor
   modes, and public export commands.
 - Do not autoload internal helpers, cache utilities, or hook internals.
+- Use `declare-function` for optional external functions when that keeps
+  byte-compilation warning-free without forcing a hard dependency.
 - Every file keeps `lexical-binding: t` in the header and ends with the matching
-  `(provide '...)` form.
+  `(provide '...)` form and the standard `ends here` trailer.
 
 ### Quality gates
 
 - `make test` must pass after behavior changes.
 - `make compile` must stay warning-free.
+- All public functions must have docstrings.
 - Changes to export behavior should add or update ERT coverage in
   `test/ox-slidev-test.el`.
 - Changes to preview/command behavior should add or update ERT coverage in
@@ -116,6 +131,24 @@ or `special-mode` UI buffers.
 - Changes to export behavior, defaults, authoring guidance, template content, or
   preview workflow must update `README.md` or the relevant `docs/*.md` file in
   the same change.
+- If code and docs diverge, treat code as the source of truth and fix the docs
+  immediately.
+
+### Pre-submit review
+
+- Before committing significant changes, step back and review the whole diff.
+- No heuristic shortcuts: if a fix feels "good enough for now", it probably is
+  not. Either do it correctly or document the reason for deferral in a
+  postmortem.
+- No redundancy: check for duplicated logic, dead code, overlapping command
+  paths, or abstractions introduced by the change, and remove them.
+- Long-term correctness: check whether the approach still holds under edge
+  cases such as manual slide breaks, missing metadata, mixed headline levels,
+  repeated exports, and concurrent buffer edits.
+- Docs in sync: any change to commands, defaults, workflow, mapping behavior,
+  or exported structure must update `README.md`, relevant `docs/*.md`, and
+  where applicable add or update a postmortem.
+- Byte-compile clean: `make compile` must finish with zero warnings.
 
 ### Postmortems
 
@@ -126,9 +159,22 @@ or `special-mode` UI buffers.
 - Write a postmortem when changing a user-visible authoring or preview workflow,
   making a non-obvious architecture choice, introducing an escape hatch or new
   mapping surface, or reverting an approach after learning it was wrong.
+- Also write one when integrating an optional dependency or deliberately
+  deferring a known limitation.
 - Name files as `NNN-topic.md` with a short increasing sequence number.
-- Each record should focus on why: background, decision, alternatives rejected,
-  trade-offs accepted, and known limits. Do not just restate the code diff.
+- Each record should focus on why: background, decision, rationale,
+  alternatives rejected, trade-offs accepted, and known limits. Do not just
+  restate the code diff.
+- The quality bar is that a future contributor should not have to guess why the
+  decision was made after reading the record.
+
+### Export and encoding
+
+- File-writing export behavior must keep a clear encoding story. If the project
+  relies on a default encoding, document that choice; if it changes, document
+  the new behavior explicitly.
+- Any change to export file paths or encoding behavior must include regression
+  tests for the affected path.
 
 ---
 
