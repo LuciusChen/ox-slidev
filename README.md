@@ -118,15 +118,15 @@ Use advanced syntax sparingly:
 
 Starter deck:
 - built-in templates:
-  - [starter.org](/home/lucius/ox-slidev/templates/starter.org)
-  - [technical-talk.org](/home/lucius/ox-slidev/templates/technical-talk.org)
-  - [project-update.org](/home/lucius/ox-slidev/templates/project-update.org)
+  - [starter.org](templates/starter.org)
+  - [technical-talk.org](templates/technical-talk.org)
+  - [project-update.org](templates/project-update.org)
 - insert commands:
   - `M-x org-slidev-insert-template`
   - `M-x org-slidev-insert-starter`
 
 Demo deck:
-- visible demo build now uses [showcase.org](/home/lucius/ox-slidev/test/fixtures/showcase.org)
+- visible demo build now uses [showcase.org](test/fixtures/showcase.org)
 - richer regression/demo coverage with realistic presentation content and a
   broader set of mapped Slidev features
 - fixture layers are now:

@@ -60,7 +60,7 @@ Example: if nil and source is ~/talks/demo.org, output is ~/talks/demo.md."
 
 (defcustom org-slidev-dev-port 3030
   "Port for the Slidev dev server."
-  :type 'integer
+  :type 'natnum
   :group 'org-slidev)
 
 (defcustom org-slidev-open-browser t
@@ -276,6 +276,18 @@ If VALUE is empty, remove PROPERTY instead."
     ("export-slidev" "#+begin_export slidev\n\n#+end_export\n")
     (_ nil)))
 
+(defun org-slidev--export-current-buffer-to-file (outfile)
+  "Export the current Org buffer to OUTFILE with Slidev link support."
+  (ox-slidev--with-export-context
+    (org-export-to-file 'slidev outfile)))
+
+(defun org-slidev--export-current-buffer-to-buffer ()
+  "Export the current Org buffer to the temporary Slidev output buffer."
+  (ox-slidev--with-export-context
+    (org-export-to-buffer 'slidev "*Org Slidev Export*"
+      nil nil nil nil nil
+      (lambda () (text-mode)))))
+
 
 ;;; ============================================================
 ;;; Export
@@ -381,7 +393,7 @@ defaults to the same directory/basename as the source with .md extension."
         (run-hooks 'org-slidev-before-export-hook)
         (message "org-slidev: exporting %s -> %s"
                  (file-name-nondirectory source) outfile)
-        (org-export-to-file 'slidev outfile)
+        (org-slidev--export-current-buffer-to-file outfile)
         (run-hook-with-args 'org-slidev-after-export-hook outfile)
         (message "org-slidev: export complete -> %s" outfile)
         outfile))))
@@ -392,9 +404,7 @@ defaults to the same directory/basename as the source with .md extension."
 Useful for inspecting export output without writing to disk."
   (interactive)
   (org-slidev--assert-org-buffer)
-  (org-export-to-buffer 'slidev "*Org Slidev Export*"
-    nil nil nil nil nil
-    (lambda () (text-mode))))
+  (org-slidev--export-current-buffer-to-buffer))
 
 
 ;;; ============================================================

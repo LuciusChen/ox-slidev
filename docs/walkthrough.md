@@ -8,7 +8,7 @@ want to see how the pieces fit together in one real deck.
 
 The reference source in this walkthrough is:
 
-- [showcase.org](/home/lucius/ox-slidev/test/fixtures/showcase.org)
+- [showcase.org](../test/fixtures/showcase.org)
 
 ## Goal
 
@@ -207,7 +207,7 @@ Or from the generated markdown with Slidev directly:
 slidev path/to/slides.md
 ```
 
-The full command-layer behavior is documented in [CLAUDE.md](/home/lucius/ox-slidev/CLAUDE.md),
+The full command-layer behavior is documented in [CLAUDE.md](../CLAUDE.md),
 but for normal use you only need export and preview.
 
 ## Step 8: Know when to stop adding syntax
@@ -227,7 +227,7 @@ Add syntax only when:
 
 ## Read the Reference Deck
 
-When reading [showcase.org](/home/lucius/ox-slidev/test/fixtures/showcase.org),
+When reading [showcase.org](../test/fixtures/showcase.org),
 notice this sequence:
 
 1. `Opening`: cover layout

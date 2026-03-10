@@ -19,7 +19,9 @@ Consult it before adding features or changing existing behavior.
 ## Elisp Implementation Rules
 
 These are the project-local Elisp rules distilled from the `clutch` guide and
-adapted for ox-slidev.
+adapted for ox-slidev. Keep only the parts that fit an Org exporter and a small
+command layer; do not import `clutch` rules that assume database protocol code
+or `special-mode` UI buffers.
 
 ### Simplicity first
 
@@ -27,6 +29,9 @@ adapted for ox-slidev.
   concrete current problem, do not add it.
 - Prefer a small number of clear files with stable responsibilities over
   cosmetic file splitting.
+- Keep one obvious authoring model. Prefer one consistent Org-to-Slidev mapping
+  over parallel commands, aliases, or mode branches that do nearly the same
+  thing.
 - Delete dead code outright. Do not keep compatibility shims for internal
   experiments.
 
@@ -37,8 +42,14 @@ adapted for ox-slidev.
   file/project resolution.
 - Do not mix preview-process behavior into the exporter, and do not move export
   formatting logic into command-layer helpers.
+- Keep dependency flow one-directional: `org-slidev.el` may depend on
+  `ox-slidev.el`, but the exporter must not depend on command-layer preview
+  helpers.
 - Loading a file must not enable behavior implicitly. Activation must happen via
   command invocation, minor mode enablement, or explicit variable setup.
+- Reuse standard Emacs/Org infrastructure before inventing project-local
+  wrappers. Prefer Org export hooks, `completing-read`, regular hooks, and
+  built-in process/file utilities.
 
 ### Naming
 
@@ -54,12 +65,17 @@ adapted for ox-slidev.
   `:group`.
 - Shared process/cache state uses plain `defvar`.
 - Buffer-local state, if introduced later, must use `defvar-local`.
+- Buffer-local hooks must be registered with the LOCAL argument instead of
+  hidden global mutation.
 
 ### Control flow
 
 - Prefer flat control flow over nested `let`/`if` pyramids.
 - Use `when-let*`, `if-let*`, `pcase`, and small helpers when they make logic
   easier to verify.
+- Prefer `pcase`/`pcase-let` for structured branching and destructuring.
+- Prefer `cl-loop` over hand-rolled accumulator patterns when list-building
+  logic becomes non-trivial.
 - Keep pure data transformation separate from buffer/process side effects.
 
 ### Error handling
@@ -74,16 +90,45 @@ adapted for ox-slidev.
 
 - Interactive commands should be thin wrappers: validate context, call the
   implementation helper, report result.
+- Keep functions small enough that their control flow is obvious. Split helpers
+  when a function starts mixing parsing, formatting, state mutation, and user
+  feedback.
 - Helpers should be named for what they compute, not where they are called.
 - Avoid introducing generic utility layers unless at least two concrete callers
   justify them.
 
+### Autoloads and file hygiene
+
+- `;;;###autoload` belongs only on real entry points: user commands, minor
+  modes, and public export commands.
+- Do not autoload internal helpers, cache utilities, or hook internals.
+- Every file keeps `lexical-binding: t` in the header and ends with the matching
+  `(provide '...)` form.
+
 ### Quality gates
 
 - `make test` must pass after behavior changes.
-- Byte-compilation should stay warning-free.
-- Changes to export behavior, defaults, authoring guidance, or preview workflow
-  must update the docs in the same change.
+- `make compile` must stay warning-free.
+- Changes to export behavior should add or update ERT coverage in
+  `test/ox-slidev-test.el`.
+- Changes to preview/command behavior should add or update ERT coverage in
+  `test/org-slidev-test.el`.
+- Changes to export behavior, defaults, authoring guidance, template content, or
+  preview workflow must update `README.md` or the relevant `docs/*.md` file in
+  the same change.
+
+### Postmortems
+
+- Significant changes should leave a short design record under `postmortem/`.
+  Create the directory on first use.
+- Read existing `postmortem/*.md` records before making a non-trivial workflow
+  or architecture change.
+- Write a postmortem when changing a user-visible authoring or preview workflow,
+  making a non-obvious architecture choice, introducing an escape hatch or new
+  mapping surface, or reverting an approach after learning it was wrong.
+- Name files as `NNN-topic.md` with a short increasing sequence number.
+- Each record should focus on why: background, decision, alternatives rejected,
+  trade-offs accepted, and known limits. Do not just restate the code diff.
 
 ---
 

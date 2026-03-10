@@ -110,6 +110,42 @@
       (when (file-exists-p temp-md)
         (delete-file temp-md)))))
 
+(ert-deftest org-slidev-export-to-file-registers-slidev-links ()
+  (let* ((temp-org (make-temp-file "org-slidev-" nil ".org"))
+         (temp-md (concat (file-name-sans-extension temp-org) ".md"))
+         (buffer nil))
+    (unwind-protect
+        (progn
+          (with-temp-file temp-org
+            (insert "* Demo\n[[slidev:Badge][Hi]]\n"))
+          (setq buffer (find-file-noselect temp-org))
+          (with-current-buffer buffer
+            (org-mode)
+            (org-slidev-export-to-file))
+          (with-temp-buffer
+            (insert-file-contents temp-md)
+            (should (string-match-p (regexp-quote "<Badge>Hi</Badge>")
+                                    (buffer-string)))))
+      (when (buffer-live-p buffer)
+        (kill-buffer buffer))
+      (when (file-exists-p temp-org)
+        (delete-file temp-org))
+      (when (file-exists-p temp-md)
+        (delete-file temp-md)))))
+
+(ert-deftest org-slidev-export-to-buffer-registers-slidev-links ()
+  (let ((export-buffer nil))
+    (unwind-protect
+        (with-temp-buffer
+          (org-mode)
+          (insert "* Demo\n[[slidev:Badge][Hi]]\n")
+          (setq export-buffer (org-slidev--export-current-buffer-to-buffer))
+          (with-current-buffer export-buffer
+            (should (string-match-p (regexp-quote "<Badge>Hi</Badge>")
+                                    (buffer-string)))))
+      (when (buffer-live-p export-buffer)
+        (kill-buffer export-buffer)))))
+
 (ert-deftest org-slidev-export-to-file-runs-before-and-after-hooks ()
   (let* ((temp-org (make-temp-file "org-slidev-" nil ".org"))
          (temp-md (concat (file-name-sans-extension temp-org) ".md"))

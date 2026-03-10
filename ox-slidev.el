@@ -24,6 +24,9 @@
 (require 'subr-x)
 (require 'json)
 
+(autoload 'org-slidev-export-to-file "org-slidev" nil t)
+(autoload 'org-slidev-export-to-buffer "org-slidev" nil t)
+
 (defvar ox-slidev--slide-metadata-cache (make-hash-table :test 'eq)
   "Cache of precomputed slide metadata keyed by Org parse tree.")
 
@@ -40,7 +43,7 @@
 (defcustom org-slidev-slide-level 1
   "Default headline level that triggers a new slide.
 Can be overridden per file with #+SLIDE_LEVEL:."
-  :type 'integer
+  :type 'natnum
   :group 'ox-slidev)
 
 (defcustom org-slidev-code-theme nil
@@ -96,8 +99,8 @@ return a new BODY string."
     (keyword       . ox-slidev--keyword))
   :menu-entry
   '(?S "Export to Slidev"
-       ((?f "To file"   ox-slidev-export-to-file)
-        (?b "To buffer" ox-slidev-export-to-buffer))))
+       ((?f "To file"   org-slidev-export-to-file)
+        (?b "To buffer" org-slidev-export-to-buffer))))
 
 
 ;;; ============================================================
@@ -393,44 +396,55 @@ Tokens like \"foo=bar\" become `foo=\"bar\"`. Bare tokens become boolean attrs."
   "Translate TABLE to markdown when possible, otherwise HTML fallback."
   (if (not (ox-slidev--table-simple-p table info))
       (org-md--convert-to-html table nil info)
-    (let ((rows nil)
-          (rule-seen nil)
-          (saw-header nil))
-      (dolist (row (org-element-contents table))
-        (when (eq (org-element-type row) 'table-row)
-          (pcase (org-element-property :type row)
-            (`rule
-             (setq rule-seen t))
-            (`standard
-             (push (cons (if (or rule-seen saw-header) 'body 'head)
-                         (ox-slidev--table-row-cells row info))
-                   rows)
-             (setq saw-header t)))))
-      (setq rows (nreverse rows))
-      (let* ((header-row (or (assoc 'head rows) (car rows)))
-             (header (or (cdr header-row) '("")))
-             (body-rows (mapcar #'cdr
-                                (cl-remove-if-not
-                                 (lambda (row) (eq (car row) 'body))
-                                 rows)))
-             (first-standard-row
-              (org-element-map table 'table-row
-                (lambda (row)
-                  (when (eq (org-element-property :type row) 'standard)
-                    row))
-                info t))
-             (divider (ox-slidev--table-align-marker first-standard-row info))
-             (body-text
-              (mapconcat
-               (lambda (row)
-                 (concat "| " (mapconcat #'identity row " | ") " |"))
-               body-rows
-               "\n")))
-        (concat
-         "| " (mapconcat #'identity header " | ") " |\n"
-         "| " (mapconcat #'identity divider " | ") " |\n"
-         body-text
-         (when body-rows "\n"))))))
+    (ox-slidev--render-markdown-table table info)))
+
+(defun ox-slidev--table-rows (table info)
+  "Return TABLE rows tagged as header/body for markdown rendering."
+  (let ((rows nil)
+        (rule-seen nil)
+        (saw-header nil))
+    (dolist (row (org-element-contents table))
+      (when (eq (org-element-type row) 'table-row)
+        (pcase (org-element-property :type row)
+          (`rule
+           (setq rule-seen t))
+          (`standard
+           (push (cons (if (or rule-seen saw-header) 'body 'head)
+                       (ox-slidev--table-row-cells row info))
+                 rows)
+           (setq saw-header t)))))
+    (nreverse rows)))
+
+(defun ox-slidev--first-standard-table-row (table info)
+  "Return the first standard row in TABLE for INFO."
+  (org-element-map table 'table-row
+    (lambda (row)
+      (when (eq (org-element-property :type row) 'standard)
+        row))
+    info t))
+
+(defun ox-slidev--table-line (cells)
+  "Render CELLS as a single markdown table line."
+  (concat "| " (mapconcat #'identity cells " | ") " |"))
+
+(defun ox-slidev--render-markdown-table (table info)
+  "Render TABLE as markdown using INFO."
+  (let* ((rows (ox-slidev--table-rows table info))
+         (header-row (or (assoc 'head rows) (car rows)))
+         (header (or (cdr header-row) '("")))
+         (body-rows (mapcar #'cdr
+                            (cl-remove-if-not
+                             (lambda (row) (eq (car row) 'body))
+                             rows)))
+         (divider (ox-slidev--table-align-marker
+                   (ox-slidev--first-standard-table-row table info)
+                   info))
+         (body-text (mapconcat #'ox-slidev--table-line body-rows "\n")))
+    (concat
+     (ox-slidev--table-line header) "\n"
+     (ox-slidev--table-line divider) "\n"
+     body-text
+     (when body-rows "\n"))))
 
 
 (defun ox-slidev--generic-component-block (params body)
@@ -592,55 +606,67 @@ Returns empty string if FM is empty."
   "Translate HEADLINE to Slidev markdown."
   (let* ((level (org-element-property :level headline))
          (slide-level (ox-slidev--slide-level info))
-         (title (org-export-data (org-element-property :title headline) info))
-         (doc-fm (ox-slidev--document-fm info))
-         (slide-fm (ox-slidev--headline-fm headline)))
+         (title (org-export-data (org-element-property :title headline) info)))
     (cond
-     ;; Level above slide-level: section container, no slide boundary.
-     ;; Just emit contents (sub-headlines will handle their own slides).
      ((< level slide-level)
       (or contents ""))
-
-     ;; Level == slide-level: new slide boundary.
      ((= level slide-level)
-      (let* ((is-first (ox-slidev--first-slide-p headline info))
-             (effective-fm (ox-slidev--apply-functions
-                            (if is-first
-                                (ox-slidev--merge-fm doc-fm slide-fm)
-                              slide-fm)
-                            ox-slidev-slide-frontmatter-functions
-                            headline
-                            info))
-             (fm-block (ox-slidev--fm-block effective-fm))
-             (heading (if (string-empty-p title)
-                          ""
-                        (concat "# " title "\n\n")))
-             (body (ox-slidev--apply-functions
-                    (ox-slidev--trim-trailing-newlines
-                     (ox-slidev--trim-leading-newlines contents))
-                    ox-slidev-slide-body-functions
-                    headline
-                    info)))
-        (concat
-         (if is-first
-             ;; First slide: emit merged frontmatter
-           (concat fm-block "\n")
-           ;; Subsequent slides: emit separator + optional fm
-           (if (null slide-fm)
-               "---\n\n"
-             ;; For later slides with frontmatter, the opening --- is both the
-             ;; slide separator and the frontmatter start.
-             (concat (ox-slidev--trim-trailing-newlines fm-block) "\n\n")))
-         heading
-         body)))
-
-     ;; Level > slide-level: sub-heading within a slide.
+      (ox-slidev--render-slide-headline headline title contents info))
      (t
-      (let* ((depth (- level slide-level))
-             (hashes (make-string (1+ depth) ?#))
-             (heading (concat hashes " " title "\n\n"))
-             (body (ox-slidev--trim-leading-newlines contents)))
-        (concat heading body))))))
+      (ox-slidev--render-subheading title contents level slide-level)))))
+
+(defun ox-slidev--render-slide-headline (headline title contents info)
+  "Render slide HEADLINE with TITLE, CONTENTS, and export INFO."
+  (let* ((is-first (ox-slidev--first-slide-p headline info))
+         (doc-fm (ox-slidev--document-fm info))
+         (slide-fm (ox-slidev--headline-fm headline))
+         (effective-fm (ox-slidev--slide-frontmatter
+                        headline info is-first doc-fm slide-fm))
+         (fm-block (ox-slidev--slide-separator-block is-first slide-fm effective-fm))
+         (heading (ox-slidev--slide-heading title))
+         (body (ox-slidev--slide-body contents headline info)))
+    (concat fm-block heading body)))
+
+(defun ox-slidev--slide-frontmatter (headline info is-first doc-fm slide-fm)
+  "Return effective slide frontmatter for HEADLINE in INFO."
+  (ox-slidev--apply-functions
+   (if is-first
+       (ox-slidev--merge-fm doc-fm slide-fm)
+     slide-fm)
+   ox-slidev-slide-frontmatter-functions
+   headline
+   info))
+
+(defun ox-slidev--slide-separator-block (is-first slide-fm effective-fm)
+  "Return the frontmatter/separator block for a slide."
+  (let ((fm-block (ox-slidev--fm-block effective-fm)))
+    (if is-first
+        (concat fm-block "\n")
+      (if (null slide-fm)
+          "---\n\n"
+        (concat (ox-slidev--trim-trailing-newlines fm-block) "\n\n")))))
+
+(defun ox-slidev--slide-heading (title)
+  "Return slide heading markdown for TITLE."
+  (if (string-empty-p title)
+      ""
+    (concat "# " title "\n\n")))
+
+(defun ox-slidev--slide-body (contents headline info)
+  "Return rendered slide body from CONTENTS for HEADLINE in INFO."
+  (ox-slidev--apply-functions
+   (ox-slidev--trim-trailing-newlines
+    (ox-slidev--trim-leading-newlines contents))
+   ox-slidev-slide-body-functions
+   headline
+   info))
+
+(defun ox-slidev--render-subheading (title contents level slide-level)
+  "Render non-slide TITLE and CONTENTS at LEVEL below SLIDE-LEVEL."
+  (let* ((depth (- level slide-level))
+         (hashes (make-string (1+ depth) ?#)))
+    (concat hashes " " title "\n\n"
+            (ox-slidev--trim-leading-newlines contents))))
 
 
 ;;; ============================================================
@@ -673,40 +699,18 @@ Returns empty string if FM is empty."
   (let* ((type (downcase (org-element-property :type block)))
          (body (or contents "")))
     (cond
-     ;; Speaker notes → HTML comment
-     ((or (string= type "notes"))
-      (concat "\n<!--\n" (string-trim body) "\n-->\n"))
-
-     ;; Named slot: #+begin_slot <name>
+     ((string= type "notes")
+      (ox-slidev--notes-block body))
      ((string= type "slot")
-      (let* ((params (org-element-property :parameters block))
-             (slot-name (if (and params (not (string-empty-p (string-trim params))))
-                            (string-trim params)
-                          "default")))
-        (concat "\n::" slot-name "::\n\n" body "\n")))
-
-     ;; Alias slots: left, right, top, bottom
+      (ox-slidev--slot-block (org-element-property :parameters block) body))
      ((member type '("left" "right" "top" "bottom"))
-      (concat "\n::" type "::\n\n" body "\n"))
-
+      (ox-slidev--named-slot-block type body))
      ((member type ox-slidev--deprecated-layout-wrapper-types)
-      (user-error
-       "Layout wrapper block `%s' is no longer supported; use headline properties like :SLIDEV_LAYOUT: and slot blocks instead"
-       type))
-
-     ;; Fragment block → v-click wrapper
+      (ox-slidev--reject-layout-wrapper-block type))
      ((string= type "fragment")
-      (let* ((params (org-element-property :parameters block))
-             (attrs (ox-slidev--fragment-attrs params)))
-        (concat "\n<div " attrs ">\n\n" body "\n</div>\n")))
-
-     ;; Clicks block → v-clicks component
+      (ox-slidev--fragment-block (org-element-property :parameters block) body))
      ((string= type "clicks")
-      (let ((attrs (ox-slidev--params-to-html-attrs
-                    (org-element-property :parameters block))))
-        (concat "\n<v-clicks" attrs ">\n\n" body "\n</v-clicks>\n")))
-
-     ;; Common Slidev component aliases
+      (ox-slidev--clicks-block (org-element-property :parameters block) body))
      ((member type '("toc" "arrow" "tweet" "youtube" "link"
                      "powered_by_slidev" "poweredbyslidev"
                      "transform" "light_or_dark" "lightordark"
@@ -723,9 +727,37 @@ Returns empty string if FM is empty."
       (ox-slidev--vdrag-block
        (org-element-property :parameters block)
        body))
-
-     ;; Unknown special blocks: pass through as-is
      (t body))))
+
+(defun ox-slidev--notes-block (body)
+  "Render notes BODY as a Slidev speaker-notes comment."
+  (concat "\n<!--\n" (string-trim body) "\n-->\n"))
+
+(defun ox-slidev--slot-block (params body)
+  "Render slot block BODY using PARAMS as the slot name."
+  (let ((slot-name (if (and params (not (string-empty-p (string-trim params))))
+                       (string-trim params)
+                     "default")))
+    (ox-slidev--named-slot-block slot-name body)))
+
+(defun ox-slidev--named-slot-block (slot-name body)
+  "Render BODY into named SLOT-NAME markdown."
+  (concat "\n::" slot-name "::\n\n" body "\n"))
+
+(defun ox-slidev--reject-layout-wrapper-block (type)
+  "Reject deprecated layout wrapper block TYPE."
+  (user-error
+   "Layout wrapper block `%s' is no longer supported; use headline properties like :SLIDEV_LAYOUT: and slot blocks instead"
+   type))
+
+(defun ox-slidev--fragment-block (params body)
+  "Render fragment block BODY using PARAMS."
+  (concat "\n<div " (ox-slidev--fragment-attrs params) ">\n\n" body "\n</div>\n"))
+
+(defun ox-slidev--clicks-block (params body)
+  "Render clicks block BODY using PARAMS."
+  (let ((attrs (ox-slidev--params-to-html-attrs params)))
+    (concat "\n<v-clicks" attrs ">\n\n" body "\n</v-clicks>\n")))
 
 (defun ox-slidev--fragment-attrs (params)
   "Build Vue attrs for fragment block PARAMS."
@@ -839,33 +871,6 @@ If the link has #+ATTR_SLIDEV: :width, emit <img> instead of ![](...)."
   "Return non-nil if PATH looks like an image file."
   (let ((ext (downcase (or (file-name-extension path) ""))))
     (member ext '("png" "jpg" "jpeg" "gif" "webp" "svg" "avif"))))
-
-
-;;; ============================================================
-;;; Export Commands
-;;; ============================================================
-
-;;;###autoload
-(defun ox-slidev-export-to-buffer (&optional async subtreep visible-only)
-  "Export current Org buffer to a Slidev Markdown buffer.
-Optional arguments ASYNC, SUBTREEP, and VISIBLE-ONLY are as in
-`org-export-to-buffer'."
-  (interactive)
-  (ox-slidev--with-export-context
-    (org-export-to-buffer 'slidev "*Org Slidev Export*"
-      async subtreep visible-only nil nil
-      (lambda () (text-mode)))))
-
-;;;###autoload
-(defun ox-slidev-export-to-file (&optional async subtreep visible-only)
-  "Export current Org buffer to a Slidev Markdown file.
-The output file will have the same base name with .md extension.
-Optional arguments ASYNC, SUBTREEP, VISIBLE-ONLY are as in `org-export-to-file'."
-  (interactive)
-  (let ((outfile (concat (file-name-sans-extension (buffer-file-name)) ".md")))
-    (ox-slidev--with-export-context
-      (org-export-to-file 'slidev outfile async subtreep visible-only))))
-
 
 ;;; ============================================================
 ;;; Provide
